@@ -13,12 +13,22 @@ export async function GET(req: NextRequest) {
   const accountId = searchParams.get("accountId") ?? undefined;
   const categoryId = searchParams.get("categoryId") ?? undefined;
   const type = (searchParams.get("type") as TransactionType) ?? undefined;
+  const search = searchParams.get("search") ?? undefined;
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
 
   const where = {
     account: { userId: session.user.id },
     ...(accountId && { accountId }),
     ...(categoryId && { categoryId }),
     ...(type && { type }),
+    ...(search && { description: { contains: search, mode: "insensitive" as const } }),
+    ...((dateFrom || dateTo) && {
+      date: {
+        ...(dateFrom && { gte: new Date(dateFrom) }),
+        ...(dateTo && { lte: new Date(dateTo + "T23:59:59") }),
+      },
+    }),
   };
 
   const [transactions, total] = await Promise.all([

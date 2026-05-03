@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { seedDefaultCategories } from "@/lib/seed-categories";
 
 export async function POST(req: NextRequest) {
   const { email, password, name } = await req.json();
@@ -19,6 +20,8 @@ export async function POST(req: NextRequest) {
     data: { email, name: name || null, passwordHash },
     select: { id: true, email: true, name: true },
   });
+
+  await seedDefaultCategories(user.id);
 
   return NextResponse.json(user, { status: 201 });
 }

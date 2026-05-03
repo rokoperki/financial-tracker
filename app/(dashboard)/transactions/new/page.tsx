@@ -3,17 +3,21 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Account = { id: string; name: string; currency: string };
+type Category = { id: string; name: string; type: string; color: string };
 
 export default function NewTransactionPage() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [txType, setTxType] = useState("EXPENSE");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/accounts")
-      .then((r) => r.json())
-      .then(setAccounts);
+    Promise.all([
+      fetch("/api/accounts").then((r) => r.json()),
+      fetch("/api/categories").then((r) => r.json()),
+    ]).then(([a, c]) => { setAccounts(a); setCategories(c); });
   }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -26,6 +30,7 @@ export default function NewTransactionPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         accountId: form.get("accountId"),
+        categoryId: form.get("categoryId") || null,
         amount: form.get("amount"),
         currency: form.get("currency"),
         type: form.get("type"),
@@ -43,6 +48,7 @@ export default function NewTransactionPage() {
   }
 
   const today = new Date().toISOString().split("T")[0];
+  const filteredCategories = categories.filter((c) => c.type === txType);
 
   return (
     <div className="max-w-lg">
@@ -51,6 +57,21 @@ export default function NewTransactionPage() {
         onSubmit={handleSubmit}
         className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4"
       >
+        <div>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Type</label>
+          <select
+            name="type"
+            required
+            value={txType}
+            onChange={(e) => setTxType(e.target.value)}
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
+          >
+            <option value="EXPENSE">Expense</option>
+            <option value="INCOME">Income</option>
+            <option value="TRANSFER">Transfer</option>
+          </select>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-zinc-700 mb-1">Account</label>
           <select
@@ -90,15 +111,17 @@ export default function NewTransactionPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Type</label>
+          <label className="block text-sm font-medium text-zinc-700 mb-1">Category</label>
           <select
-            name="type"
-            required
+            name="categoryId"
             className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
           >
-            <option value="EXPENSE">Expense</option>
-            <option value="INCOME">Income</option>
-            <option value="TRANSFER">Transfer</option>
+            <option value="">None</option>
+            {filteredCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </select>
         </div>
 
