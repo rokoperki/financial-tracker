@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  passwordHash String?
+  accounts     Account[]
+  categories   Category[]
+  budgets      Budget[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Account {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  name          String
+  type          AccountType
+  currency      String        @default("EUR")
+  balance       Decimal       @default(0)
+  walletAddress String?
+  isActive      Boolean       @default(true)
+  transactions  Transaction[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum AccountType {
+  BANK
+  REVOLUT
+  CASH
+  SOLFLARE
+  KAST
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  accountId   String
+  account     Account         @relation(fields: [accountId], references: [id])
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id])
+  amount      Decimal
+  amountEur   Decimal
+  currency    String
+  type        TransactionType
+  description String?
+  date        DateTime
+  isRecurring Boolean         @default(false)
+  recurringId String?
+  recurring   RecurringRule?  @relation(fields: [recurringId], references: [id])
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  name         String
+  type         CategoryType
+  color        String        @default("#6366f1")
+  icon         String?
+  transactions Transaction[]
+  budgets      Budget[]
+  createdAt    DateTime      @default(now())
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+model Budget {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  categoryId     String
+  category       Category  @relation(fields: [categoryId], references: [id])
+  amount         Decimal
+  month          String
+  alertThreshold Int       @default(80)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model RecurringRule {
+  id           String        @id @default(uuid())
+  frequency    Frequency
+  dayOfWeek    Int?
+  dayOfMonth   Int?
+  monthOfYear  Int?
+  amount       Decimal
+  currency     String
+  categoryId   String?
+  accountId    String
+  description  String?
+  isActive     Boolean       @default(true)
+  nextRunDate  DateTime
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model ExchangeRate {
+  id           String   @id @default(uuid())
+  fromCurrency String
+  toCurrency   String   @default("EUR")
+  rate         Decimal
+  date         DateTime
+  createdAt    DateTime @default(now())
+
+  @@unique([fromCurrency, toCurrency, date])
+}
