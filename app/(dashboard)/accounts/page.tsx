@@ -23,6 +23,12 @@ function fmt(amount: number, currency = "EUR") {
   return new Intl.NumberFormat("en-IE", { style: "currency", currency }).format(amount);
 }
 
+const inputCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-2 text-sm dark:text-zinc-100";
+const selectCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm dark:text-zinc-100";
+const labelCls = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
+const btnPrimary = "rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 disabled:opacity-50";
+const btnOutline = "rounded-lg border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800";
+
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -88,80 +94,51 @@ export default function AccountsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Accounts</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-        >
-          Add account
-        </button>
-        <button
-          onClick={() => setShowTransfer(!showTransfer)}
-          className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-        >
-          Transfer
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowForm(!showForm)} className={btnPrimary}>
+            Add account
+          </button>
+          <button onClick={() => setShowTransfer(!showTransfer)} className={btnOutline}>
+            Transfer
+          </button>
+        </div>
       </div>
 
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4"
+          className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4"
         >
           <h2 className="font-medium">New account</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Name</label>
-              <input
-                name="name"
-                required
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-              />
+              <label className={labelCls}>Name</label>
+              <input name="name" required className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Type</label>
-              <select
-                name="type"
-                required
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
-              >
+              <label className={labelCls}>Type</label>
+              <select name="type" required className={selectCls}>
                 {ACCOUNT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {TYPE_LABELS[t]}
-                  </option>
+                  <option key={t} value={t}>{TYPE_LABELS[t]}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Currency</label>
-              <input
-                name="currency"
-                defaultValue="EUR"
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-              />
+              <label className={labelCls}>Currency</label>
+              <input name="currency" defaultValue="EUR" className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">
+              <label className={labelCls}>
                 Wallet address <span className="text-zinc-400">(crypto only)</span>
               </label>
-              <input
-                name="walletAddress"
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-              />
+              <input name="walletAddress" className={inputCls} />
             </div>
           </div>
           <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className={btnPrimary}>
               {loading ? "Creating…" : "Create"}
             </button>
-            <button
-              type="button"
-              onClick={() => setShowForm(false)}
-              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-            >
+            <button type="button" onClick={() => setShowForm(false)} className={btnOutline}>
               Cancel
             </button>
           </div>
@@ -171,46 +148,46 @@ export default function AccountsPage() {
       {showTransfer && (
         <form
           onSubmit={handleTransfer}
-          className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4"
+          className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4"
         >
           <h2 className="font-medium">Transfer between accounts</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">From</label>
-              <select name="fromAccountId" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white">
+              <label className={labelCls}>From</label>
+              <select name="fromAccountId" required className={selectCls}>
                 <option value="">Select…</option>
                 {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">To</label>
-              <select name="toAccountId" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white">
+              <label className={labelCls}>To</label>
+              <select name="toAccountId" required className={selectCls}>
                 <option value="">Select…</option>
                 {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Amount</label>
-              <input name="amount" type="number" step="0.01" min="0.01" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Amount</label>
+              <input name="amount" type="number" step="0.01" min="0.01" required className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Currency</label>
-              <input name="currency" defaultValue="EUR" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Currency</label>
+              <input name="currency" defaultValue="EUR" className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Date</label>
-              <input name="date" type="date" defaultValue={new Date().toISOString().split("T")[0]} required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Date</label>
+              <input name="date" type="date" defaultValue={new Date().toISOString().split("T")[0]} required className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Description</label>
-              <input name="description" placeholder="Optional" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Description</label>
+              <input name="description" placeholder="Optional" className={inputCls} />
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" disabled={loading} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50">
+            <button type="submit" disabled={loading} className={btnPrimary}>
               {loading ? "Transferring…" : "Transfer"}
             </button>
-            <button type="button" onClick={() => setShowTransfer(false)} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+            <button type="button" onClick={() => setShowTransfer(false)} className={btnOutline}>
               Cancel
             </button>
           </div>
@@ -218,20 +195,20 @@ export default function AccountsPage() {
       )}
 
       {accounts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center">
-          <p className="text-zinc-500">No accounts yet. Add one above.</p>
+        <div className="rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 p-12 text-center">
+          <p className="text-zinc-500 dark:text-zinc-400">No accounts yet. Add one above.</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-zinc-200 bg-white divide-y divide-zinc-100">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
           {accounts.map((a) => (
             <div key={a.id} className="flex items-center justify-between px-6 py-4">
               <div>
                 <p className="font-medium">{a.name}</p>
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-zinc-400 dark:text-zinc-500">
                   {TYPE_LABELS[a.type]} · {a.currency}
                 </p>
                 {a.walletAddress && (
-                  <p className="text-xs text-zinc-400 font-mono mt-0.5 truncate max-w-xs">
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 font-mono mt-0.5 truncate max-w-xs">
                     {a.walletAddress}
                   </p>
                 )}
@@ -242,7 +219,7 @@ export default function AccountsPage() {
                 </p>
                 <button
                   onClick={() => handleDelete(a.id)}
-                  className="text-sm text-red-500 hover:text-red-700"
+                  className="text-sm text-red-500 hover:text-red-700 dark:hover:text-red-400"
                 >
                   Remove
                 </button>

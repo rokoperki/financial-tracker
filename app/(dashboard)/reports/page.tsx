@@ -57,11 +57,11 @@ export default function ReportsPage() {
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
+            className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-1.5 text-sm dark:text-zinc-100"
           />
           <button
             onClick={downloadCSV}
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="rounded-lg border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
           >
             Export CSV
           </button>
@@ -74,12 +74,12 @@ export default function ReportsPage() {
         </div>
       ) : !data ? null : (
         <>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {/* Spending by category */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-6">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
               <h2 className="font-semibold mb-4">Spending by category</h2>
               {data.spendingByCategory.length === 0 ? (
-                <p className="text-sm text-zinc-400 py-8 text-center">No expense data</p>
+                <p className="text-sm text-zinc-400 dark:text-zinc-500 py-8 text-center">No expense data</p>
               ) : (
                 <div className="flex gap-4 items-center">
                   <ResponsiveContainer width="60%" height={220}>
@@ -105,7 +105,7 @@ export default function ReportsPage() {
                       <div key={i} className="flex items-center justify-between gap-2 text-xs">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: e.color }} />
-                          <span className="truncate text-zinc-600">{e.name}</span>
+                          <span className="truncate text-zinc-600 dark:text-zinc-400">{e.name}</span>
                         </div>
                         <span className="font-medium tabular-nums flex-shrink-0">{fmt(e.value)}</span>
                       </div>
@@ -116,11 +116,11 @@ export default function ReportsPage() {
             </div>
 
             {/* Net worth trend */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-6">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
               <h2 className="font-semibold mb-4">Net worth trend</h2>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={data.netWorthTrend} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => fmt(v)} width={70} />
                   <Tooltip formatter={(v) => fmt(Number(v))} />
@@ -131,11 +131,11 @@ export default function ReportsPage() {
           </div>
 
           {/* Income vs expenses */}
-          <div className="rounded-xl border border-zinc-200 bg-white p-6">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
             <h2 className="font-semibold mb-4">Income vs expenses — last 6 months</h2>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={data.incomeVsExpenses} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => fmt(v)} width={70} />
                 <Tooltip formatter={(v) => fmt(Number(v))} />

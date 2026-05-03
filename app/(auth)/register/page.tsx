@@ -36,44 +36,44 @@ export default function RegisterPage() {
       <h1 className="text-2xl font-semibold mb-6">Create account</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Name</label>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Name</label>
           <input
             name="name"
             type="text"
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-2 text-sm dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-400"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Email</label>
           <input
             name="email"
             type="email"
             required
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-2 text-sm dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-400"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700 mb-1">Password</label>
+          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Password</label>
           <input
             name="password"
             type="password"
             required
             minLength={8}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            className="w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-2 text-sm dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-400"
           />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 disabled:opacity-50"
         >
           {loading ? "Creating account…" : "Create account"}
         </button>
       </form>
-      <p className="mt-4 text-sm text-zinc-500">
+      <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
         Already have an account?{" "}
-        <Link href="/login" className="text-zinc-900 font-medium">
+        <Link href="/login" className="text-zinc-900 dark:text-zinc-100 font-medium">
           Sign in
         </Link>
       </p>

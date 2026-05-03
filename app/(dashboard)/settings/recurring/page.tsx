@@ -26,6 +26,10 @@ function fmt(amount: string, currency: string) {
   return new Intl.NumberFormat("en-IE", { style: "currency", currency }).format(Number(amount));
 }
 
+const inputCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-2 text-sm dark:text-zinc-100";
+const selectCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm dark:text-zinc-100";
+const labelCls = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
+
 export default function RecurringPage() {
   const [rules, setRules] = useState<Rule[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -95,51 +99,54 @@ export default function RecurringPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Recurring transactions</h1>
-          <p className="text-sm text-zinc-500 mt-1">
-            Triggered via <code className="text-xs bg-zinc-100 px-1 py-0.5 rounded">POST /api/recurring/run</code>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            Triggered via{" "}
+            <code className="text-xs bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-300 px-1 py-0.5 rounded">
+              POST /api/recurring/run
+            </code>
           </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+          className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300"
         >
           Add rule
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4">
+        <form onSubmit={handleCreate} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4">
           <h2 className="font-medium">New recurring rule</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Account</label>
-              <select name="accountId" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white">
+              <label className={labelCls}>Account</label>
+              <select name="accountId" required className={selectCls}>
                 <option value="">Select…</option>
                 {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Category</label>
-              <select name="categoryId" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white">
+              <label className={labelCls}>Category</label>
+              <select name="categoryId" className={selectCls}>
                 <option value="">None</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Amount</label>
-              <input name="amount" type="number" step="0.01" min="0.01" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Amount</label>
+              <input name="amount" type="number" step="0.01" min="0.01" required className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Currency</label>
-              <input name="currency" defaultValue="EUR" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Currency</label>
+              <input name="currency" defaultValue="EUR" className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Frequency</label>
+              <label className={labelCls}>Frequency</label>
               <select
                 name="frequency"
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
+                className={selectCls}
               >
                 <option value="DAILY">Daily</option>
                 <option value="WEEKLY">Weekly</option>
@@ -149,8 +156,8 @@ export default function RecurringPage() {
             </div>
             {frequency === "WEEKLY" && (
               <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-1">Day of week</label>
-                <select name="dayOfWeek" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white">
+                <label className={labelCls}>Day of week</label>
+                <select name="dayOfWeek" className={selectCls}>
                   {["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].map((d, i) => (
                     <option key={i} value={i}>{d}</option>
                   ))}
@@ -159,14 +166,14 @@ export default function RecurringPage() {
             )}
             {(frequency === "MONTHLY" || frequency === "YEARLY") && (
               <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-1">Day of month</label>
-                <input name="dayOfMonth" type="number" min="1" max="31" defaultValue={1} className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+                <label className={labelCls}>Day of month</label>
+                <input name="dayOfMonth" type="number" min="1" max="31" defaultValue={1} className={inputCls} />
               </div>
             )}
             {frequency === "YEARLY" && (
               <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-1">Month</label>
-                <select name="monthOfYear" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white">
+                <label className={labelCls}>Month</label>
+                <select name="monthOfYear" className={selectCls}>
                   {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
                     <option key={i} value={i + 1}>{m}</option>
                   ))}
@@ -174,19 +181,19 @@ export default function RecurringPage() {
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">First run date</label>
-              <input name="nextRunDate" type="date" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>First run date</label>
+              <input name="nextRunDate" type="date" required className={inputCls} />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Description</label>
-              <input name="description" placeholder="Optional" className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+              <label className={labelCls}>Description</label>
+              <input name="description" placeholder="Optional" className={inputCls} />
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" disabled={loading} className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50">
+            <button type="submit" disabled={loading} className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 disabled:opacity-50">
               {loading ? "Saving…" : "Save"}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800">
               Cancel
             </button>
           </div>
@@ -194,26 +201,30 @@ export default function RecurringPage() {
       )}
 
       {rules.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center">
-          <p className="text-zinc-500">No recurring rules yet.</p>
+        <div className="rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 p-12 text-center">
+          <p className="text-zinc-500 dark:text-zinc-400">No recurring rules yet.</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-zinc-200 bg-white divide-y divide-zinc-100">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
           {rules.map((r) => (
             <div key={r.id} className="flex items-center justify-between px-5 py-4">
               <div>
                 <p className="font-medium text-sm">{r.description ?? "Recurring expense"}</p>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                   {accountMap[r.accountId]?.name} · {FREQ_LABELS[r.frequency]} · next: {new Date(r.nextRunDate).toLocaleDateString("en-IE")}
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-semibold tabular-nums text-red-500">
+                <span className="text-sm font-semibold tabular-nums text-red-500 dark:text-red-400">
                   −{fmt(r.amount, r.currency)}
                 </span>
                 <button
                   onClick={() => toggleActive(r)}
-                  className={`text-xs px-2 py-1 rounded-full font-medium ${r.isActive ? "bg-emerald-50 text-emerald-700" : "bg-zinc-100 text-zinc-500"}`}
+                  className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    r.isActive
+                      ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"
+                      : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                  }`}
                 >
                   {r.isActive ? "Active" : "Paused"}
                 </button>

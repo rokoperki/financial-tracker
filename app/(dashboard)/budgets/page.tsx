@@ -20,6 +20,10 @@ function fmt(n: number) {
   return new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" }).format(n);
 }
 
+const inputCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-2 text-sm dark:text-zinc-100";
+const selectCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm dark:text-zinc-100";
+const labelCls = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
+
 export default function BudgetsPage() {
   const [month, setMonth] = useState(currentMonth());
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -80,11 +84,11 @@ export default function BudgetsPage() {
             type="month"
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
+            className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-3 py-1.5 text-sm dark:text-zinc-100"
           />
           <button
             onClick={() => setShowForm(!showForm)}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+            className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300"
           >
             Add budget
           </button>
@@ -94,62 +98,40 @@ export default function BudgetsPage() {
       {showForm && (
         <form
           onSubmit={handleCreate}
-          className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4"
+          className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4"
         >
           <h2 className="font-medium">New budget for {month}</h2>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Category</label>
-              <select
-                name="categoryId"
-                required
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm bg-white"
-              >
+              <label className={labelCls}>Category</label>
+              <select name="categoryId" required className={selectCls}>
                 <option value="">Select…</option>
                 {unbudgetedCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Limit (EUR)</label>
-              <input
-                name="amount"
-                type="number"
-                step="1"
-                min="1"
-                required
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-              />
+              <label className={labelCls}>Limit (EUR)</label>
+              <input name="amount" type="number" step="1" min="1" required className={inputCls} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">
-                Alert at (%)
-              </label>
-              <input
-                name="alertThreshold"
-                type="number"
-                defaultValue={80}
-                min={1}
-                max={99}
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-              />
+              <label className={labelCls}>Alert at (%)</label>
+              <input name="alertThreshold" type="number" defaultValue={80} min={1} max={99} className={inputCls} />
             </div>
           </div>
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+              className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-4 py-2 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 disabled:opacity-50"
             >
               {loading ? "Saving…" : "Save"}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+              className="rounded-lg border border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
             >
               Cancel
             </button>
@@ -158,8 +140,8 @@ export default function BudgetsPage() {
       )}
 
       {budgets.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 p-12 text-center">
-          <p className="text-zinc-500">No budgets set for {month}.</p>
+        <div className="rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 p-12 text-center">
+          <p className="text-zinc-500 dark:text-zinc-400">No budgets set for {month}.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -173,15 +155,15 @@ export default function BudgetsPage() {
               ? "bg-amber-400"
               : "bg-emerald-500";
             const textColor = exceeded
-              ? "text-red-600"
+              ? "text-red-600 dark:text-red-400"
               : warning
-              ? "text-amber-600"
-              : "text-emerald-600";
+              ? "text-amber-600 dark:text-amber-400"
+              : "text-emerald-600 dark:text-emerald-400";
 
             return (
               <div
                 key={b.id}
-                className="rounded-xl border border-zinc-200 bg-white px-5 py-4 space-y-2"
+                className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-5 py-4 space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -203,13 +185,13 @@ export default function BudgetsPage() {
                     </button>
                   </div>
                 </div>
-                <div className="h-2 w-full rounded-full bg-zinc-100 overflow-hidden">
+                <div className="h-2 w-full rounded-full bg-zinc-100 dark:bg-zinc-700 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${barColor}`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-xs text-zinc-400">
+                <div className="flex justify-between text-xs text-zinc-400 dark:text-zinc-500">
                   <span>{Math.round(pct)}% used</span>
                   <span>{fmt(Math.max(0, b.amount - b.spent))} remaining</span>
                 </div>
