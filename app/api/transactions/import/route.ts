@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TransactionType } from "@/lib/generated/prisma/client";
+import { toEur } from "@/lib/exchange-rates";
 
 type ImportRow = {
   amount: number;
@@ -30,17 +31,25 @@ export async function POST(req: NextRequest) {
   });
   if (!account) return NextResponse.json({ error: "Account not found" }, { status: 404 });
 
+  // Pre-fetch unique rates outside the DB transaction to avoid nested async in Prisma tx
+  const currencies = [...new Set(transactions.map((t) => t.currency || account.currency))];
+  const rates: Record<string, number> = {};
+  await Promise.all(currencies.map(async (c) => { rates[c] = await toEur(1, c); }));
+
   const created = await prisma.$transaction(async (tx) => {
     const rows = await tx.transaction.createManyAndReturn({
-      data: transactions.map((t) => ({
-        accountId,
-        amount: t.amount,
-        amountEur: t.amount,
-        currency: t.currency || account.currency,
-        type: t.type as TransactionType,
-        description: t.description || null,
-        date: new Date(t.date),
-      })),
+      data: transactions.map((t) => {
+        const cur = t.currency || account.currency;
+        return {
+          accountId,
+          amount: t.amount,
+          amountEur: Math.round(t.amount * (rates[cur] ?? 1) * 100) / 100,
+          currency: cur,
+          type: t.type as TransactionType,
+          description: t.description || null,
+          date: new Date(t.date),
+        };
+      }),
     });
 
     const balanceDelta = transactions.reduce((sum, t) => {

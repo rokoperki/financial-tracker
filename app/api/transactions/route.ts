@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TransactionType } from "@/lib/generated/prisma/client";
+import { toEur } from "@/lib/exchange-rates";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -67,13 +68,16 @@ export async function POST(req: NextRequest) {
   });
   if (!account) return NextResponse.json({ error: "Account not found" }, { status: 404 });
 
+  const txCurrency = currency ?? account.currency;
+  const amountEur = await toEur(Number(amount), txCurrency);
+
   const transaction = await prisma.transaction.create({
     data: {
       accountId,
       categoryId: categoryId ?? null,
       amount,
-      amountEur: amount, // Phase 3: real conversion
-      currency: currency ?? account.currency,
+      amountEur,
+      currency: txCurrency,
       type: type as TransactionType,
       description: description || null,
       date: new Date(date),
