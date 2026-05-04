@@ -16,6 +16,9 @@ export default function CategoriesPage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formType, setFormType] = useState<"EXPENSE" | "INCOME">("EXPENSE");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", color: "" });
+  const [editSaving, setEditSaving] = useState(false);
 
   async function load() {
     const res = await fetch("/api/categories");
@@ -41,6 +44,26 @@ export default function CategoriesPage() {
     setShowForm(false);
     (e.target as HTMLFormElement).reset();
     load();
+  }
+
+  function startEdit(c: Category) {
+    setEditingId(c.id);
+    setEditForm({ name: c.name, color: c.color });
+  }
+
+  async function saveEdit(id: string) {
+    setEditSaving(true);
+    const res = await fetch(`/api/categories/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: editForm.name, color: editForm.color }),
+    });
+    setEditSaving(false);
+    if (res.ok) {
+      const updated = await res.json();
+      setCategories((prev) => prev.map((c) => (c.id === id ? { ...c, ...updated } : c)));
+      setEditingId(null);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -133,20 +156,58 @@ export default function CategoriesPage() {
             ) : (
               <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
                 {items.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="h-3 w-3 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: c.color }}
-                      />
-                      <span className="text-sm font-medium">{c.name}</span>
-                    </div>
-                    <button
-                      onClick={() => handleDelete(c.id)}
-                      className="text-xs text-zinc-400 hover:text-red-500"
-                    >
-                      Delete
-                    </button>
+                  <div key={c.id}>
+                    {editingId === c.id ? (
+                      /* Inline edit row */
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <input
+                          type="color"
+                          value={editForm.color}
+                          onChange={(e) => setEditForm((f) => ({ ...f, color: e.target.value }))}
+                          className="h-7 w-7 rounded cursor-pointer border border-zinc-300 dark:border-zinc-700 bg-transparent flex-shrink-0"
+                        />
+                        <input
+                          value={editForm.name}
+                          onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                          className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent dark:bg-zinc-800/50 px-2 py-1 text-sm dark:text-zinc-100 flex-1 min-w-0"
+                        />
+                        <button
+                          onClick={() => saveEdit(c.id)}
+                          disabled={editSaving}
+                          className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-3 py-1 text-xs font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 disabled:opacity-50 flex-shrink-0"
+                        >
+                          {editSaving ? "Saving…" : "Save"}
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 flex-shrink-0"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      /* Display row */
+                      <div className="flex items-center justify-between px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: c.color }} />
+                          <span className="text-sm font-medium">{c.name}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => startEdit(c)}
+                            className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(c.id)}
+                            className="text-xs text-zinc-400 hover:text-red-500"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getEurRate } from "@/lib/exchange-rates";
 import Link from "next/link";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -68,7 +69,11 @@ export default async function DashboardPage() {
       }),
     ]);
 
-  const netWorth = accounts.reduce((s, a) => s + Number(a.balance), 0);
+  const currencies = [...new Set(accounts.map((a) => a.currency))];
+  const rates = Object.fromEntries(
+    await Promise.all(currencies.map(async (c) => [c, await getEurRate(c)]))
+  );
+  const netWorth = accounts.reduce((s, a) => s + Number(a.balance) * rates[a.currency], 0);
   const income = Number(incomeAgg._sum.amountEur ?? 0);
   const expenses = Number(expensesAgg._sum.amountEur ?? 0);
 

@@ -85,7 +85,8 @@ export async function POST(req: NextRequest) {
     include: { account: true, category: true },
   });
 
-  const delta = type === "INCOME" ? Number(amount) : -Number(amount);
+  const balanceAbs = account.currency === "EUR" ? amountEur : Number(amount);
+  const delta = type === "INCOME" ? balanceAbs : -balanceAbs;
   if (type !== "TRANSFER") {
     await prisma.account.update({
       where: { id: accountId },

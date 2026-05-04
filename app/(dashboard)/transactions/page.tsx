@@ -5,15 +5,25 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 type Account = { id: string; name: string };
-type Category = { id: string; name: string; color: string };
+type Category = { id: string; name: string; color: string; type: string };
 type Transaction = {
   id: string;
+  amount: string;
   amountEur: string;
+  currency: string;
   type: "INCOME" | "EXPENSE" | "TRANSFER";
   description: string | null;
   date: string;
   account: Account;
   category: Category | null;
+};
+
+type EditForm = {
+  description: string;
+  categoryId: string;
+  date: string;
+  amount: string;
+  currency: string;
 };
 
 function fmt(n: number) {
@@ -40,6 +50,10 @@ function TransactionsInner() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<EditForm>({ description: "", categoryId: "", date: "", amount: "", currency: "EUR" });
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     Promise.all([
       fetch("/api/accounts").then((r) => r.json()),
@@ -55,7 +69,6 @@ function TransactionsInner() {
     if (type) params.set("type", type);
     if (dateFrom) params.set("dateFrom", dateFrom);
     if (dateTo) params.set("dateTo", dateTo);
-
     fetch(`/api/transactions?${params}`)
       .then((r) => r.json())
       .then((data) => { setTransactions(data.transactions); setTotal(data.total); });
@@ -64,6 +77,38 @@ function TransactionsInner() {
   function resetFilters() {
     setSearch(""); setAccountId(""); setCategoryId("");
     setType(""); setDateFrom(""); setDateTo(""); setPage(1);
+  }
+
+  function startEdit(tx: Transaction) {
+    setEditingId(tx.id);
+    setEditForm({
+      description: tx.description ?? "",
+      categoryId: tx.category?.id ?? "",
+      date: new Date(tx.date).toISOString().split("T")[0],
+      amount: tx.amount,
+      currency: tx.currency,
+    });
+  }
+
+  async function saveEdit(tx: Transaction) {
+    setSaving(true);
+    const res = await fetch(`/api/transactions/${tx.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: editForm.description || null,
+        categoryId: editForm.categoryId || null,
+        date: editForm.date,
+        amount: editForm.amount,
+        currency: editForm.currency,
+      }),
+    });
+    setSaving(false);
+    if (res.ok) {
+      const updated = await res.json();
+      setTransactions((prev) => prev.map((t) => (t.id === tx.id ? { ...t, ...updated } : t)));
+      setEditingId(null);
+    }
   }
 
   const totalPages = Math.ceil(total / 20);
@@ -97,79 +142,46 @@ function TransactionsInner() {
 
       {/* Filters */}
       <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 space-y-3">
-        {/* Search row */}
         <input
           placeholder="Search by description…"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className={`${inputCls} w-full`}
         />
-
-        {/* Filter row */}
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex flex-col gap-1 min-w-[130px]">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Account</span>
-            <select
-              value={accountId}
-              onChange={(e) => { setAccountId(e.target.value); setPage(1); }}
-              className={selectCls}
-            >
+            <select value={accountId} onChange={(e) => { setAccountId(e.target.value); setPage(1); }} className={selectCls}>
               <option value="">All accounts</option>
               {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
           </div>
-
           <div className="flex flex-col gap-1 min-w-[130px]">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Category</span>
-            <select
-              value={categoryId}
-              onChange={(e) => { setCategoryId(e.target.value); setPage(1); }}
-              className={selectCls}
-            >
+            <select value={categoryId} onChange={(e) => { setCategoryId(e.target.value); setPage(1); }} className={selectCls}>
               <option value="">All categories</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
-
           <div className="flex flex-col gap-1 min-w-[110px]">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">Type</span>
-            <select
-              value={type}
-              onChange={(e) => { setType(e.target.value); setPage(1); }}
-              className={selectCls}
-            >
+            <select value={type} onChange={(e) => { setType(e.target.value); setPage(1); }} className={selectCls}>
               <option value="">All types</option>
               <option value="INCOME">Income</option>
               <option value="EXPENSE">Expense</option>
               <option value="TRANSFER">Transfer</option>
             </select>
           </div>
-
           <div className="flex flex-col gap-1">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">From</span>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-              className={inputCls}
-            />
+            <input type="date" value={dateFrom} onChange={(e) => { setDateFrom(e.target.value); setPage(1); }} className={inputCls} />
           </div>
-
           <div className="flex flex-col gap-1">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">To</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-              className={inputCls}
-            />
+            <input type="date" value={dateTo} onChange={(e) => { setDateTo(e.target.value); setPage(1); }} className={inputCls} />
           </div>
-
           {hasFilters && (
-            <button
-              onClick={resetFilters}
-              className="self-end pb-0.5 text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 whitespace-nowrap"
-            >
+            <button onClick={resetFilters} className="self-end pb-0.5 text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 whitespace-nowrap">
               Clear all
             </button>
           )}
@@ -185,54 +197,122 @@ function TransactionsInner() {
       ) : (
         <>
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
-            {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-3">
-                  {tx.category ? (
-                    <div
-                      className="h-2 w-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: tx.category.color }}
-                    />
-                  ) : (
-                    <div className="h-2 w-2 rounded-full flex-shrink-0 bg-zinc-200 dark:bg-zinc-700" />
-                  )}
-                  <div>
-                    <p className="text-sm font-medium">
-                      {tx.description ?? tx.category?.name ?? "—"}
-                    </p>
-                    <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                      {tx.account.name} · {new Date(tx.date).toLocaleDateString("en-IE")}
-                      {tx.category && ` · ${tx.category.name}`}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <p
-                    className={`text-sm font-semibold tabular-nums ${
-                      tx.type === "INCOME"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : tx.type === "EXPENSE"
-                        ? "text-red-500 dark:text-red-400"
+            {transactions.map((tx) => {
+              const isEditing = editingId === tx.id;
+              const filteredCats = categories.filter((c) => c.type === tx.type || tx.type === "TRANSFER");
+
+              return (
+                <div key={tx.id}>
+                  {/* Display row */}
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {tx.category ? (
+                        <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: tx.category.color }} />
+                      ) : (
+                        <div className="h-2 w-2 rounded-full flex-shrink-0 bg-zinc-200 dark:bg-zinc-700" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">{tx.description ?? tx.category?.name ?? "—"}</p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                          {tx.account.name} · {new Date(tx.date).toLocaleDateString("en-IE")}
+                          {tx.category && ` · ${tx.category.name}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <p className={`text-sm font-semibold tabular-nums ${
+                        tx.type === "INCOME" ? "text-emerald-600 dark:text-emerald-400"
+                        : tx.type === "EXPENSE" ? "text-red-500 dark:text-red-400"
                         : "text-zinc-500"
-                    }`}
-                  >
-                    {tx.type === "EXPENSE" ? "−" : tx.type === "INCOME" ? "+" : ""}
-                    {fmt(Number(tx.amountEur))}
-                  </p>
-                  <button
-                    onClick={async () => {
-                      if (!confirm("Delete this transaction?")) return;
-                      await fetch(`/api/transactions/${tx.id}`, { method: "DELETE" });
-                      setTransactions((prev) => prev.filter((t) => t.id !== tx.id));
-                      setTotal((n) => n - 1);
-                    }}
-                    className="text-xs text-zinc-400 hover:text-red-500"
-                  >
-                    Delete
-                  </button>
+                      }`}>
+                        {tx.type === "EXPENSE" ? "−" : tx.type === "INCOME" ? "+" : ""}
+                        {fmt(Number(tx.amountEur))}
+                      </p>
+                      <button
+                        onClick={() => isEditing ? setEditingId(null) : startEdit(tx)}
+                        className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                      >
+                        {isEditing ? "Cancel" : "Edit"}
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!confirm("Delete this transaction?")) return;
+                          await fetch(`/api/transactions/${tx.id}`, { method: "DELETE" });
+                          setTransactions((prev) => prev.filter((t) => t.id !== tx.id));
+                          setTotal((n) => n - 1);
+                        }}
+                        className="text-xs text-zinc-400 hover:text-red-500"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Inline edit form */}
+                  {isEditing && (
+                    <div className="px-4 pb-4 pt-1 bg-zinc-50 dark:bg-zinc-800/50 border-t border-[var(--border)]">
+                      <div className="flex flex-wrap gap-3 items-end">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Description</span>
+                          <input
+                            value={editForm.description}
+                            onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                            placeholder="Optional"
+                            className={`${inputCls} min-w-[160px]`}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Amount</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={editForm.amount}
+                            onChange={(e) => setEditForm((f) => ({ ...f, amount: e.target.value }))}
+                            className={`${inputCls} w-28`}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Currency</span>
+                          <input
+                            value={editForm.currency}
+                            onChange={(e) => setEditForm((f) => ({ ...f, currency: e.target.value.toUpperCase() }))}
+                            className={`${inputCls} w-20`}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Category</span>
+                          <select
+                            value={editForm.categoryId}
+                            onChange={(e) => setEditForm((f) => ({ ...f, categoryId: e.target.value }))}
+                            className={`${selectCls} min-w-[130px]`}
+                          >
+                            <option value="">None</option>
+                            {filteredCats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Date</span>
+                          <input
+                            type="date"
+                            value={editForm.date}
+                            onChange={(e) => setEditForm((f) => ({ ...f, date: e.target.value }))}
+                            className={inputCls}
+                          />
+                        </div>
+                        <button
+                          onClick={() => saveEdit(tx)}
+                          disabled={saving}
+                          className="self-end rounded-lg bg-zinc-900 dark:bg-zinc-100 px-3 py-1.5 text-xs font-medium text-white dark:text-zinc-900 hover:bg-zinc-700 dark:hover:bg-zinc-300 disabled:opacity-50"
+                        >
+                          {saving ? "Saving…" : "Save"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {totalPages > 1 && (

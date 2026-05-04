@@ -16,6 +16,7 @@ import {
   Line,
 } from "recharts";
 
+type Account = { id: string; name: string };
 type ChartData = {
   spendingByCategory: { name: string; value: number; color: string }[];
   incomeVsExpenses: { month: string; income: number; expenses: number }[];
@@ -33,26 +34,45 @@ function fmt(n: number) {
 
 export default function ReportsPage() {
   const [month, setMonth] = useState(currentMonth());
+  const [accountId, setAccountId] = useState("");
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [data, setData] = useState<ChartData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetch("/api/accounts").then((r) => r.json()).then(setAccounts);
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
-    fetch(`/api/reports/charts?month=${month}`)
+    const params = new URLSearchParams({ month });
+    if (accountId) params.set("accountId", accountId);
+    fetch(`/api/reports/charts?${params}`)
       .then((r) => r.json())
       .then((d) => { setData(d); setLoading(false); });
-  }, [month]);
+  }, [month, accountId]);
 
   function downloadCSV() {
     const params = new URLSearchParams({ dateFrom: `${month}-01`, dateTo: `${month}-31` });
+    if (accountId) params.set("accountId", accountId);
     window.location.href = `/api/reports/export?${params}`;
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-semibold">Reports</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <select
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-sm dark:text-zinc-100"
+          >
+            <option value="">All accounts</option>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>{a.name}</option>
+            ))}
+          </select>
           <input
             type="month"
             value={month}
@@ -117,14 +137,16 @@ export default function ReportsPage() {
 
             {/* Net worth trend */}
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-              <h2 className="font-semibold mb-4">Net worth trend</h2>
+              <h2 className="font-semibold mb-4">
+                {accountId ? "Account balance trend" : "Net worth trend"}
+              </h2>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={data.netWorthTrend} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => fmt(v)} width={70} />
                   <Tooltip formatter={(v) => fmt(Number(v))} />
-                  <Line type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} dot={false} name="Net worth" />
+                  <Line type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} dot={false} name={accountId ? "Balance" : "Net worth"} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
