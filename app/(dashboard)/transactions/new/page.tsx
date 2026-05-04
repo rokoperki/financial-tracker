@@ -72,7 +72,6 @@ export default function NewTransactionPage() {
           >
             <option value="EXPENSE">Expense</option>
             <option value="INCOME">Income</option>
-            <option value="TRANSFER">Transfer</option>
           </select>
         </div>
 

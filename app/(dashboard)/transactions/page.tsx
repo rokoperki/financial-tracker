@@ -11,7 +11,7 @@ type Transaction = {
   amount: string;
   amountEur: string;
   currency: string;
-  type: "INCOME" | "EXPENSE" | "TRANSFER";
+  type: "INCOME" | "EXPENSE" | string;
   description: string | null;
   date: string;
   account: Account;
@@ -172,7 +172,6 @@ function TransactionsInner() {
               <option value="">All types</option>
               <option value="INCOME">Income</option>
               <option value="EXPENSE">Expense</option>
-              <option value="TRANSFER">Transfer</option>
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -202,7 +201,7 @@ function TransactionsInner() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
             {transactions.map((tx) => {
               const isEditing = editingId === tx.id;
-              const filteredCats = categories.filter((c) => c.type === editForm.type || editForm.type === "TRANSFER");
+              const filteredCats = categories.filter((c) => c.type === editForm.type);
 
               return (
                 <div key={tx.id}>
@@ -266,7 +265,6 @@ function TransactionsInner() {
                           >
                             <option value="INCOME">Income</option>
                             <option value="EXPENSE">Expense</option>
-                            <option value="TRANSFER">Transfer</option>
                           </select>
                         </div>
                         <div className="flex flex-col gap-1">

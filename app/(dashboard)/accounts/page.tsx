@@ -34,7 +34,6 @@ type EditForm = { name: string; currency: string; balance: string; walletAddress
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [showTransfer, setShowTransfer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({ name: "", currency: "", balance: "", walletAddress: "" });
@@ -63,28 +62,6 @@ export default function AccountsPage() {
     });
     setLoading(false);
     setShowForm(false);
-    (e.target as HTMLFormElement).reset();
-    load();
-  }
-
-  async function handleTransfer(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    const form = new FormData(e.currentTarget);
-    await fetch("/api/accounts/transfer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fromAccountId: form.get("fromAccountId"),
-        toAccountId: form.get("toAccountId"),
-        amount: form.get("amount"),
-        currency: form.get("currency") || undefined,
-        date: form.get("date"),
-        description: form.get("description") || undefined,
-      }),
-    });
-    setLoading(false);
-    setShowTransfer(false);
     (e.target as HTMLFormElement).reset();
     load();
   }
@@ -124,14 +101,9 @@ export default function AccountsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Accounts</h1>
-        <div className="flex gap-2">
-          <button onClick={() => setShowForm(!showForm)} className={btnPrimary}>
-            Add account
-          </button>
-          <button onClick={() => setShowTransfer(!showTransfer)} className={btnOutline}>
-            Transfer
-          </button>
-        </div>
+        <button onClick={() => setShowForm(!showForm)} className={btnPrimary}>
+          Add account
+        </button>
       </div>
 
       {showForm && (
@@ -175,56 +147,8 @@ export default function AccountsPage() {
         </form>
       )}
 
-      {showTransfer && (
-        <form
-          onSubmit={handleTransfer}
-          className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 space-y-4"
-        >
-          <h2 className="font-medium">Transfer between accounts</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>From</label>
-              <select name="fromAccountId" required className={selectCls}>
-                <option value="">Select…</option>
-                {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>To</label>
-              <select name="toAccountId" required className={selectCls}>
-                <option value="">Select…</option>
-                {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Amount</label>
-              <input name="amount" type="number" step="0.01" min="0.01" required className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Currency</label>
-              <input name="currency" defaultValue="EUR" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Date</label>
-              <input name="date" type="date" defaultValue={new Date().toISOString().split("T")[0]} required className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Description</label>
-              <input name="description" placeholder="Optional" className={inputCls} />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button type="submit" disabled={loading} className={btnPrimary}>
-              {loading ? "Transferring…" : "Transfer"}
-            </button>
-            <button type="button" onClick={() => setShowTransfer(false)} className={btnOutline}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
 
-      {accounts.length === 0 ? (
+{accounts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 p-12 text-center">
           <p className="text-zinc-500 dark:text-zinc-400">No accounts yet. Add one above.</p>
         </div>
