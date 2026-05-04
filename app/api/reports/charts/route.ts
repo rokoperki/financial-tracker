@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
   const base = accountId
     ? { accountId, account: { userId: session.user.id } }
-    : { account: { userId: session.user.id } };
+    : { account: { userId: session.user.id }, NOT: { category: { name: "Transfer" } } };
 
   const [spendingRaw, monthlyData, netWorthData, dailyTxs] = await Promise.all([
     // Spending by category for selected month

@@ -22,11 +22,11 @@ export default async function DashboardPage() {
         orderBy: { createdAt: "asc" },
       }),
       prisma.transaction.aggregate({
-        where: { account: { userId: session.user.id }, type: "INCOME", date: { gte: startOfMonth } },
+        where: { account: { userId: session.user.id }, type: "INCOME", date: { gte: startOfMonth }, NOT: { category: { name: "Transfer" } } },
         _sum: { amountEur: true },
       }),
       prisma.transaction.aggregate({
-        where: { account: { userId: session.user.id }, type: "EXPENSE", date: { gte: startOfMonth } },
+        where: { account: { userId: session.user.id }, type: "EXPENSE", date: { gte: startOfMonth }, NOT: { category: { name: "Transfer" } } },
         _sum: { amountEur: true },
       }),
       prisma.transaction.findMany({
