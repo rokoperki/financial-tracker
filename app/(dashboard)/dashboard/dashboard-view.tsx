@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -55,6 +56,8 @@ export type DashboardData = {
 export function DashboardView(props: DashboardData) {
   const { netWorth, income, expenses, currentMonthLabel, alertBudgets, insights, accounts, recentTxs } = props;
   const [hidden, setHidden] = useState(true);
+  const [recalculating, setRecalculating] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const stored = localStorage.getItem("dashboard-amounts-hidden");
@@ -67,6 +70,13 @@ export function DashboardView(props: DashboardData) {
     localStorage.setItem("dashboard-amounts-hidden", String(next));
   }
 
+  async function recalculate() {
+    setRecalculating(true);
+    await fetch("/api/accounts/recalculate", { method: "POST" });
+    setRecalculating(false);
+    router.refresh();
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -74,6 +84,14 @@ export function DashboardView(props: DashboardData) {
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-0.5 text-sm">{currentMonthLabel}</p>
         </div>
+        <div className="flex items-center gap-3">
+        <button
+          onClick={recalculate}
+          disabled={recalculating}
+          className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 disabled:opacity-50"
+        >
+          {recalculating ? "Recalculating…" : "Recalculate"}
+        </button>
         <button
           onClick={toggle}
           className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
@@ -91,6 +109,7 @@ export function DashboardView(props: DashboardData) {
           )}
           {hidden ? "Show" : "Hide"}
         </button>
+        </div>
       </div>
 
       {/* Budget alerts */}

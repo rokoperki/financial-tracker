@@ -19,10 +19,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const account = await requireOwned(id, session.user.id);
   if (!account) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const { name, currency, walletAddress } = await req.json();
+  const { name, currency, walletAddress, balance } = await req.json();
   const updated = await prisma.account.update({
     where: { id },
-    data: { name, currency, walletAddress },
+    data: {
+      name,
+      currency,
+      walletAddress,
+      ...(balance !== undefined && { balance: Number(balance) }),
+    },
   });
 
   return NextResponse.json(JSON.parse(JSON.stringify(updated)));

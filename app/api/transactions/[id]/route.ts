@@ -28,6 +28,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const existing = await prisma.transaction.findFirst({
     where: { id, account: { userId: session.user.id } },
+    include: { account: { select: { currency: true } } },
   });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -42,8 +43,12 @@ export async function PUT(req: NextRequest, { params }: Params) {
       ? await toEur(newAmount, newCurrency)
       : oldAmountEur;
 
-  const oldEffect = existing.type === "INCOME" ? oldAmountEur : existing.type === "EXPENSE" ? -oldAmountEur : 0;
-  const newEffect = newType === "INCOME" ? newAmountEur : newType === "EXPENSE" ? -newAmountEur : 0;
+  // Use native amount for non-EUR accounts (same logic as POST and DELETE)
+  const isEurAccount = existing.account.currency === "EUR";
+  const oldNative = isEurAccount ? oldAmountEur : Number(existing.amount);
+  const newNative = isEurAccount ? newAmountEur : newAmount;
+  const oldEffect = existing.type === "INCOME" ? oldNative : existing.type === "EXPENSE" ? -oldNative : 0;
+  const newEffect = newType === "INCOME" ? newNative : newType === "EXPENSE" ? -newNative : 0;
   const balanceDelta = newEffect - oldEffect;
   const skipBalance = existing.type === "TRANSFER" && newType === "TRANSFER";
 

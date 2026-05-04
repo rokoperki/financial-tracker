@@ -18,8 +18,18 @@ import {
 
 type Account = { id: string; name: string };
 type ChartData = {
-  spendingByCategory: { id: string; name: string; value: number; color: string }[];
-  incomeVsExpenses: { month: string; monthKey: string; income: number; expenses: number }[];
+  spendingByCategory: {
+    id: string;
+    name: string;
+    value: number;
+    color: string;
+  }[];
+  incomeVsExpenses: {
+    month: string;
+    monthKey: string;
+    income: number;
+    expenses: number;
+  }[];
   netWorthTrend: { month: string; monthKey: string; value: number }[];
   dailyBreakdown: { day: number; income: number; expenses: number }[];
 };
@@ -63,8 +73,12 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
+  const [selectedCategoryName, setSelectedCategoryName] = useState<
+    string | null
+  >(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [txs, setTxs] = useState<TxItem[]>([]);
   const [txsLoading, setTxsLoading] = useState(false);
@@ -157,7 +171,9 @@ export default function ReportsPage() {
           },
         }
       : null,
-    selectedDay ? { label: `Day ${selectedDay}`, clear: () => setSelectedDay(null) } : null,
+    selectedDay
+      ? { label: `Day ${selectedDay}`, clear: () => setSelectedDay(null) }
+      : null,
   ].filter(Boolean) as { label: string; clear: () => void }[];
 
   return (
@@ -232,7 +248,9 @@ export default function ReportsPage() {
                           paddingAngle={2}
                           dataKey="value"
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          onClick={(entry: any) => toggleCategory(entry.id, entry.name)}
+                          onClick={(entry: any) =>
+                            toggleCategory(entry.id, entry.name)
+                          }
                           style={{ cursor: "pointer" }}
                         >
                           {data.spendingByCategory.map((entry, i) => (
@@ -240,12 +258,19 @@ export default function ReportsPage() {
                               key={i}
                               fill={entry.color}
                               opacity={
-                                selectedCategoryId && selectedCategoryId !== entry.id
+                                selectedCategoryId &&
+                                selectedCategoryId !== entry.id
                                   ? 0.3
                                   : 1
                               }
-                              stroke={selectedCategoryId === entry.id ? "#fff" : "none"}
-                              strokeWidth={selectedCategoryId === entry.id ? 2 : 0}
+                              stroke={
+                                selectedCategoryId === entry.id
+                                  ? "#fff"
+                                  : "none"
+                              }
+                              strokeWidth={
+                                selectedCategoryId === entry.id ? 2 : 0
+                              }
                             />
                           ))}
                         </Pie>
@@ -263,7 +288,9 @@ export default function ReportsPage() {
                         className="flex items-center justify-between gap-2 text-xs cursor-pointer rounded px-1 py-0.5 hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
                         style={{
                           opacity:
-                            selectedCategoryId && selectedCategoryId !== e.id ? 0.35 : 1,
+                            selectedCategoryId && selectedCategoryId !== e.id
+                              ? 0.35
+                              : 1,
                         }}
                         onClick={() => toggleCategory(e.id, e.name)}
                       >
@@ -393,21 +420,35 @@ export default function ReportsPage() {
                     labelFormatter={(d) => `Day ${d}`}
                   />
                   <Legend />
-                  <Bar dataKey="income" fill="#22c55e" name="Income" radius={[2, 2, 0, 0]}>
+                  <Bar
+                    dataKey="income"
+                    fill="#22c55e"
+                    name="Income"
+                    radius={[2, 2, 0, 0]}
+                  >
                     {data.dailyBreakdown.map((entry, index) => (
                       <Cell
                         key={index}
                         fill="#22c55e"
-                        opacity={selectedDay && selectedDay !== entry.day ? 0.25 : 1}
+                        opacity={
+                          selectedDay && selectedDay !== entry.day ? 0.25 : 1
+                        }
                       />
                     ))}
                   </Bar>
-                  <Bar dataKey="expenses" fill="#f87171" name="Expenses" radius={[2, 2, 0, 0]}>
+                  <Bar
+                    dataKey="expenses"
+                    fill="#f87171"
+                    name="Expenses"
+                    radius={[2, 2, 0, 0]}
+                  >
                     {data.dailyBreakdown.map((entry, index) => (
                       <Cell
                         key={index}
                         fill="#f87171"
-                        opacity={selectedDay && selectedDay !== entry.day ? 0.25 : 1}
+                        opacity={
+                          selectedDay && selectedDay !== entry.day ? 0.25 : 1
+                        }
                       />
                     ))}
                   </Bar>
@@ -509,7 +550,9 @@ export default function ReportsPage() {
                       <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
                         <span>{tx.account.name}</span>
                         <span>·</span>
-                        <span>{new Date(tx.date).toLocaleDateString("en-IE")}</span>
+                        <span>
+                          {new Date(tx.date).toLocaleDateString("en-IE")}
+                        </span>
                         {tx.category && (
                           <>
                             <span>·</span>
@@ -531,7 +574,11 @@ export default function ReportsPage() {
                             : "text-zinc-500"
                       }`}
                     >
-                      {tx.type === "EXPENSE" ? "−" : tx.type === "INCOME" ? "+" : ""}
+                      {tx.type === "EXPENSE"
+                        ? "−"
+                        : tx.type === "INCOME"
+                          ? "+"
+                          : ""}
                       {fmtFull(Number(tx.amountEur))}
                     </p>
                   </div>
