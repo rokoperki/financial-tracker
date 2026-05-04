@@ -19,6 +19,7 @@ type Transaction = {
 };
 
 type EditForm = {
+  type: string;
   description: string;
   categoryId: string;
   date: string;
@@ -51,7 +52,7 @@ function TransactionsInner() {
   const [dateTo, setDateTo] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<EditForm>({ description: "", categoryId: "", date: "", amount: "", currency: "EUR" });
+  const [editForm, setEditForm] = useState<EditForm>({ type: "EXPENSE", description: "", categoryId: "", date: "", amount: "", currency: "EUR" });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -82,6 +83,7 @@ function TransactionsInner() {
   function startEdit(tx: Transaction) {
     setEditingId(tx.id);
     setEditForm({
+      type: tx.type,
       description: tx.description ?? "",
       categoryId: tx.category?.id ?? "",
       date: new Date(tx.date).toISOString().split("T")[0],
@@ -96,6 +98,7 @@ function TransactionsInner() {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        type: editForm.type,
         description: editForm.description || null,
         categoryId: editForm.categoryId || null,
         date: editForm.date,
@@ -199,7 +202,7 @@ function TransactionsInner() {
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
             {transactions.map((tx) => {
               const isEditing = editingId === tx.id;
-              const filteredCats = categories.filter((c) => c.type === tx.type || tx.type === "TRANSFER");
+              const filteredCats = categories.filter((c) => c.type === editForm.type || editForm.type === "TRANSFER");
 
               return (
                 <div key={tx.id}>
@@ -252,6 +255,20 @@ function TransactionsInner() {
                   {isEditing && (
                     <div className="px-4 pb-4 pt-1 bg-zinc-50 dark:bg-zinc-800/50 border-t border-[var(--border)]">
                       <div className="flex flex-wrap gap-3 items-end">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Type</span>
+                          <select
+                            value={editForm.type}
+                            onChange={(e) =>
+                              setEditForm((f) => ({ ...f, type: e.target.value, categoryId: "" }))
+                            }
+                            className={selectCls}
+                          >
+                            <option value="INCOME">Income</option>
+                            <option value="EXPENSE">Expense</option>
+                            <option value="TRANSFER">Transfer</option>
+                          </select>
+                        </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">Description</span>
                           <input
