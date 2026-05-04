@@ -57,6 +57,8 @@ export const ModelName = {
   Category: 'Category',
   Budget: 'Budget',
   RecurringRule: 'RecurringRule',
+  Debt: 'Debt',
+  DebtPayment: 'DebtPayment',
   ExchangeRate: 'ExchangeRate'
 } as const
 
@@ -168,6 +170,35 @@ export const RecurringRuleScalarFieldEnum = {
 } as const
 
 export type RecurringRuleScalarFieldEnum = (typeof RecurringRuleScalarFieldEnum)[keyof typeof RecurringRuleScalarFieldEnum]
+
+
+export const DebtScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  direction: 'direction',
+  totalAmount: 'totalAmount',
+  dueDate: 'dueDate',
+  description: 'description',
+  isSettled: 'isSettled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
+
+
+export const DebtPaymentScalarFieldEnum = {
+  id: 'id',
+  debtId: 'debtId',
+  transactionId: 'transactionId',
+  amount: 'amount',
+  date: 'date',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type DebtPaymentScalarFieldEnum = (typeof DebtPaymentScalarFieldEnum)[keyof typeof DebtPaymentScalarFieldEnum]
 
 
 export const ExchangeRateScalarFieldEnum = {

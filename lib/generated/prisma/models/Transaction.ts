@@ -287,6 +287,7 @@ export type TransactionWhereInput = {
   account?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   recurring?: Prisma.XOR<Prisma.RecurringRuleNullableScalarRelationFilter, Prisma.RecurringRuleWhereInput> | null
+  debtPayment?: Prisma.XOR<Prisma.DebtPaymentNullableScalarRelationFilter, Prisma.DebtPaymentWhereInput> | null
 }
 
 export type TransactionOrderByWithRelationInput = {
@@ -306,6 +307,7 @@ export type TransactionOrderByWithRelationInput = {
   account?: Prisma.AccountOrderByWithRelationInput
   category?: Prisma.CategoryOrderByWithRelationInput
   recurring?: Prisma.RecurringRuleOrderByWithRelationInput
+  debtPayment?: Prisma.DebtPaymentOrderByWithRelationInput
 }
 
 export type TransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -328,6 +330,7 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   account?: Prisma.XOR<Prisma.AccountScalarRelationFilter, Prisma.AccountWhereInput>
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   recurring?: Prisma.XOR<Prisma.RecurringRuleNullableScalarRelationFilter, Prisma.RecurringRuleWhereInput> | null
+  debtPayment?: Prisma.XOR<Prisma.DebtPaymentNullableScalarRelationFilter, Prisma.DebtPaymentWhereInput> | null
 }, "id">
 
 export type TransactionOrderByWithAggregationInput = {
@@ -384,6 +387,7 @@ export type TransactionCreateInput = {
   account: Prisma.AccountCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   recurring?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
+  debtPayment?: Prisma.DebtPaymentCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionUncheckedCreateInput = {
@@ -400,6 +404,7 @@ export type TransactionUncheckedCreateInput = {
   recurringId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionUpdateInput = {
@@ -416,6 +421,7 @@ export type TransactionUpdateInput = {
   account?: Prisma.AccountUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   recurring?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
+  debtPayment?: Prisma.DebtPaymentUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateInput = {
@@ -432,6 +438,7 @@ export type TransactionUncheckedUpdateInput = {
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionCreateManyInput = {
@@ -545,6 +552,11 @@ export type TransactionMinOrderByAggregateInput = {
 export type TransactionSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   amountEur?: Prisma.SortOrder
+}
+
+export type TransactionNullableScalarRelationFilter = {
+  is?: Prisma.TransactionWhereInput | null
+  isNot?: Prisma.TransactionWhereInput | null
 }
 
 export type TransactionCreateNestedManyWithoutAccountInput = {
@@ -677,6 +689,22 @@ export type TransactionUncheckedUpdateManyWithoutRecurringNestedInput = {
   deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
 }
 
+export type TransactionCreateNestedOneWithoutDebtPaymentInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutDebtPaymentInput, Prisma.TransactionUncheckedCreateWithoutDebtPaymentInput>
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutDebtPaymentInput
+  connect?: Prisma.TransactionWhereUniqueInput
+}
+
+export type TransactionUpdateOneWithoutDebtPaymentNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutDebtPaymentInput, Prisma.TransactionUncheckedCreateWithoutDebtPaymentInput>
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutDebtPaymentInput
+  upsert?: Prisma.TransactionUpsertWithoutDebtPaymentInput
+  disconnect?: Prisma.TransactionWhereInput | boolean
+  delete?: Prisma.TransactionWhereInput | boolean
+  connect?: Prisma.TransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TransactionUpdateToOneWithWhereWithoutDebtPaymentInput, Prisma.TransactionUpdateWithoutDebtPaymentInput>, Prisma.TransactionUncheckedUpdateWithoutDebtPaymentInput>
+}
+
 export type TransactionCreateWithoutAccountInput = {
   id?: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -690,6 +718,7 @@ export type TransactionCreateWithoutAccountInput = {
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   recurring?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
+  debtPayment?: Prisma.DebtPaymentCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutAccountInput = {
@@ -705,6 +734,7 @@ export type TransactionUncheckedCreateWithoutAccountInput = {
   recurringId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutAccountInput = {
@@ -765,6 +795,7 @@ export type TransactionCreateWithoutCategoryInput = {
   updatedAt?: Date | string
   account: Prisma.AccountCreateNestedOneWithoutTransactionsInput
   recurring?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
+  debtPayment?: Prisma.DebtPaymentCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutCategoryInput = {
@@ -780,6 +811,7 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   recurringId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutCategoryInput = {
@@ -821,6 +853,7 @@ export type TransactionCreateWithoutRecurringInput = {
   updatedAt?: Date | string
   account: Prisma.AccountCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
+  debtPayment?: Prisma.DebtPaymentCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutRecurringInput = {
@@ -836,6 +869,7 @@ export type TransactionUncheckedCreateWithoutRecurringInput = {
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedCreateNestedOneWithoutTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutRecurringInput = {
@@ -862,6 +896,86 @@ export type TransactionUpdateWithWhereUniqueWithoutRecurringInput = {
 export type TransactionUpdateManyWithWhereWithoutRecurringInput = {
   where: Prisma.TransactionScalarWhereInput
   data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutRecurringInput>
+}
+
+export type TransactionCreateWithoutDebtPaymentInput = {
+  id?: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountEur: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: string
+  type: $Enums.TransactionType
+  description?: string | null
+  date: Date | string
+  isRecurring?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  account: Prisma.AccountCreateNestedOneWithoutTransactionsInput
+  category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
+  recurring?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
+}
+
+export type TransactionUncheckedCreateWithoutDebtPaymentInput = {
+  id?: string
+  accountId: string
+  categoryId?: string | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountEur: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: string
+  type: $Enums.TransactionType
+  description?: string | null
+  date: Date | string
+  isRecurring?: boolean
+  recurringId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TransactionCreateOrConnectWithoutDebtPaymentInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutDebtPaymentInput, Prisma.TransactionUncheckedCreateWithoutDebtPaymentInput>
+}
+
+export type TransactionUpsertWithoutDebtPaymentInput = {
+  update: Prisma.XOR<Prisma.TransactionUpdateWithoutDebtPaymentInput, Prisma.TransactionUncheckedUpdateWithoutDebtPaymentInput>
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutDebtPaymentInput, Prisma.TransactionUncheckedCreateWithoutDebtPaymentInput>
+  where?: Prisma.TransactionWhereInput
+}
+
+export type TransactionUpdateToOneWithWhereWithoutDebtPaymentInput = {
+  where?: Prisma.TransactionWhereInput
+  data: Prisma.XOR<Prisma.TransactionUpdateWithoutDebtPaymentInput, Prisma.TransactionUncheckedUpdateWithoutDebtPaymentInput>
+}
+
+export type TransactionUpdateWithoutDebtPaymentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountEur?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  account?: Prisma.AccountUpdateOneRequiredWithoutTransactionsNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
+  recurring?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
+}
+
+export type TransactionUncheckedUpdateWithoutDebtPaymentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountEur?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TransactionCreateManyAccountInput = {
@@ -892,6 +1006,7 @@ export type TransactionUpdateWithoutAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   recurring?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
+  debtPayment?: Prisma.DebtPaymentUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutAccountInput = {
@@ -907,6 +1022,7 @@ export type TransactionUncheckedUpdateWithoutAccountInput = {
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutAccountInput = {
@@ -952,6 +1068,7 @@ export type TransactionUpdateWithoutCategoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.AccountUpdateOneRequiredWithoutTransactionsNestedInput
   recurring?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
+  debtPayment?: Prisma.DebtPaymentUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutCategoryInput = {
@@ -967,6 +1084,7 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
@@ -1012,6 +1130,7 @@ export type TransactionUpdateWithoutRecurringInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   account?: Prisma.AccountUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
+  debtPayment?: Prisma.DebtPaymentUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutRecurringInput = {
@@ -1027,6 +1146,7 @@ export type TransactionUncheckedUpdateWithoutRecurringInput = {
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  debtPayment?: Prisma.DebtPaymentUncheckedUpdateOneWithoutTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutRecurringInput = {
@@ -1063,6 +1183,7 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   recurring?: boolean | Prisma.Transaction$recurringArgs<ExtArgs>
+  debtPayment?: boolean | Prisma.Transaction$debtPaymentArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1124,6 +1245,7 @@ export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.Internal
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   recurring?: boolean | Prisma.Transaction$recurringArgs<ExtArgs>
+  debtPayment?: boolean | Prisma.Transaction$debtPaymentArgs<ExtArgs>
 }
 export type TransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
@@ -1142,6 +1264,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     account: Prisma.$AccountPayload<ExtArgs>
     category: Prisma.$CategoryPayload<ExtArgs> | null
     recurring: Prisma.$RecurringRulePayload<ExtArgs> | null
+    debtPayment: Prisma.$DebtPaymentPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1554,6 +1677,7 @@ export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends runt
   account<T extends Prisma.AccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AccountDefaultArgs<ExtArgs>>): Prisma.Prisma__AccountClient<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   category<T extends Prisma.Transaction$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$categoryArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   recurring<T extends Prisma.Transaction$recurringArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$recurringArgs<ExtArgs>>): Prisma.Prisma__RecurringRuleClient<runtime.Types.Result.GetResult<Prisma.$RecurringRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  debtPayment<T extends Prisma.Transaction$debtPaymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$debtPaymentArgs<ExtArgs>>): Prisma.Prisma__DebtPaymentClient<runtime.Types.Result.GetResult<Prisma.$DebtPaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2032,6 +2156,25 @@ export type Transaction$recurringArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.RecurringRuleInclude<ExtArgs> | null
   where?: Prisma.RecurringRuleWhereInput
+}
+
+/**
+ * Transaction.debtPayment
+ */
+export type Transaction$debtPaymentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DebtPayment
+   */
+  select?: Prisma.DebtPaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DebtPayment
+   */
+  omit?: Prisma.DebtPaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DebtPaymentInclude<ExtArgs> | null
+  where?: Prisma.DebtPaymentWhereInput
 }
 
 /**

@@ -45,3 +45,11 @@ export const Frequency = {
 } as const
 
 export type Frequency = (typeof Frequency)[keyof typeof Frequency]
+
+
+export const DebtDirection = {
+  I_OWE: 'I_OWE',
+  THEY_OWE: 'THEY_OWE'
+} as const
+
+export type DebtDirection = (typeof DebtDirection)[keyof typeof DebtDirection]

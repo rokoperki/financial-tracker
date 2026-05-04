@@ -390,6 +390,8 @@ export const ModelName = {
   Category: 'Category',
   Budget: 'Budget',
   RecurringRule: 'RecurringRule',
+  Debt: 'Debt',
+  DebtPayment: 'DebtPayment',
   ExchangeRate: 'ExchangeRate'
 } as const
 
@@ -406,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "transaction" | "category" | "budget" | "recurringRule" | "exchangeRate"
+    modelProps: "user" | "account" | "transaction" | "category" | "budget" | "recurringRule" | "debt" | "debtPayment" | "exchangeRate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -854,6 +856,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Debt: {
+      payload: Prisma.$DebtPayload<ExtArgs>
+      fields: Prisma.DebtFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DebtFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DebtFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        findFirst: {
+          args: Prisma.DebtFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DebtFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        findMany: {
+          args: Prisma.DebtFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>[]
+        }
+        create: {
+          args: Prisma.DebtCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        createMany: {
+          args: Prisma.DebtCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DebtCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>[]
+        }
+        delete: {
+          args: Prisma.DebtDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        update: {
+          args: Prisma.DebtUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        deleteMany: {
+          args: Prisma.DebtDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DebtUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DebtUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>[]
+        }
+        upsert: {
+          args: Prisma.DebtUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        aggregate: {
+          args: Prisma.DebtAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDebt>
+        }
+        groupBy: {
+          args: Prisma.DebtGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DebtGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DebtCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DebtCountAggregateOutputType> | number
+        }
+      }
+    }
+    DebtPayment: {
+      payload: Prisma.$DebtPaymentPayload<ExtArgs>
+      fields: Prisma.DebtPaymentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DebtPaymentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DebtPaymentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>
+        }
+        findFirst: {
+          args: Prisma.DebtPaymentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DebtPaymentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>
+        }
+        findMany: {
+          args: Prisma.DebtPaymentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>[]
+        }
+        create: {
+          args: Prisma.DebtPaymentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>
+        }
+        createMany: {
+          args: Prisma.DebtPaymentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DebtPaymentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>[]
+        }
+        delete: {
+          args: Prisma.DebtPaymentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>
+        }
+        update: {
+          args: Prisma.DebtPaymentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>
+        }
+        deleteMany: {
+          args: Prisma.DebtPaymentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DebtPaymentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DebtPaymentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>[]
+        }
+        upsert: {
+          args: Prisma.DebtPaymentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPaymentPayload>
+        }
+        aggregate: {
+          args: Prisma.DebtPaymentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDebtPayment>
+        }
+        groupBy: {
+          args: Prisma.DebtPaymentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DebtPaymentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DebtPaymentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DebtPaymentCountAggregateOutputType> | number
+        }
+      }
+    }
     ExchangeRate: {
       payload: Prisma.$ExchangeRatePayload<ExtArgs>
       fields: Prisma.ExchangeRateFieldRefs
@@ -1061,6 +1211,35 @@ export const RecurringRuleScalarFieldEnum = {
 export type RecurringRuleScalarFieldEnum = (typeof RecurringRuleScalarFieldEnum)[keyof typeof RecurringRuleScalarFieldEnum]
 
 
+export const DebtScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  direction: 'direction',
+  totalAmount: 'totalAmount',
+  dueDate: 'dueDate',
+  description: 'description',
+  isSettled: 'isSettled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
+
+
+export const DebtPaymentScalarFieldEnum = {
+  id: 'id',
+  debtId: 'debtId',
+  transactionId: 'transactionId',
+  amount: 'amount',
+  date: 'date',
+  note: 'note',
+  createdAt: 'createdAt'
+} as const
+
+export type DebtPaymentScalarFieldEnum = (typeof DebtPaymentScalarFieldEnum)[keyof typeof DebtPaymentScalarFieldEnum]
+
+
 export const ExchangeRateScalarFieldEnum = {
   id: 'id',
   fromCurrency: 'fromCurrency',
@@ -1223,6 +1402,20 @@ export type ListEnumFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'DebtDirection'
+ */
+export type EnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection'>
+    
+
+
+/**
+ * Reference to a field of type 'DebtDirection[]'
+ */
+export type ListEnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1351,6 +1544,8 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   budget?: Prisma.BudgetOmit
   recurringRule?: Prisma.RecurringRuleOmit
+  debt?: Prisma.DebtOmit
+  debtPayment?: Prisma.DebtPaymentOmit
   exchangeRate?: Prisma.ExchangeRateOmit
 }
 

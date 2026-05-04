@@ -15,6 +15,7 @@ model User {
   accounts     Account[]
   categories   Category[]
   budgets      Budget[]
+  debts        Debt[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -57,6 +58,7 @@ model Transaction {
   isRecurring Boolean         @default(false)
   recurringId String?
   recurring   RecurringRule?  @relation(fields: [recurringId], references: [id])
+  debtPayment DebtPayment?
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 }
@@ -121,6 +123,38 @@ enum Frequency {
   WEEKLY
   MONTHLY
   YEARLY
+}
+
+model Debt {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  name        String
+  direction   DebtDirection
+  totalAmount Decimal
+  dueDate     DateTime?
+  description String?
+  isSettled   Boolean       @default(false)
+  payments    DebtPayment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum DebtDirection {
+  I_OWE
+  THEY_OWE
+}
+
+model DebtPayment {
+  id            String       @id @default(uuid())
+  debtId        String
+  debt          Debt         @relation(fields: [debtId], references: [id], onDelete: Cascade)
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  amount        Decimal
+  date          DateTime
+  note          String?
+  createdAt     DateTime     @default(now())
 }
 
 model ExchangeRate {
