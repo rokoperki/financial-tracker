@@ -9,11 +9,9 @@ const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/accounts", label: "Accounts" },
   { href: "/transactions", label: "Transactions" },
-  { href: "/budgets", label: "Budgets" },
   { href: "/categories", label: "Categories" },
   { href: "/reports", label: "Reports" },
   { href: "/debts", label: "Debts" },
-  { href: "/settings/recurring", label: "Recurring" },
 ];
 
 export function Nav() {

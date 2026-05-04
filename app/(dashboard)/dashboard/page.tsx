@@ -13,9 +13,8 @@ export default async function DashboardPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
-  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  const [accounts, incomeAgg, expensesAgg, recentTxs, budgets, thisMonthSpending, lastMonthSpending] =
+  const [accounts, incomeAgg, expensesAgg, recentTxs, thisMonthSpending, lastMonthSpending] =
     await Promise.all([
       prisma.account.findMany({
         where: { userId: session.user.id, isActive: true },
@@ -34,10 +33,6 @@ export default async function DashboardPage() {
         include: { account: true, category: true },
         orderBy: { date: "desc" },
         take: 10,
-      }),
-      prisma.budget.findMany({
-        where: { userId: session.user.id, month: currentMonthStr },
-        include: { category: true },
       }),
       prisma.transaction.groupBy({
         by: ["categoryId"],
@@ -68,20 +63,6 @@ export default async function DashboardPage() {
   const netWorth = accounts.reduce((s, a) => s + Number(a.balance) * rates[a.currency], 0);
   const income = Number(incomeAgg._sum.amountEur ?? 0);
   const expenses = Number(expensesAgg._sum.amountEur ?? 0);
-
-  const spendingMap = Object.fromEntries(
-    thisMonthSpending.map((s) => [s.categoryId, Number(s._sum.amountEur ?? 0)])
-  );
-  const alertBudgets = budgets
-    .map((b) => ({
-      id: b.id,
-      category: { name: b.category.name },
-      spent: spendingMap[b.categoryId] ?? 0,
-      amount: Number(b.amount),
-      alertThreshold: b.alertThreshold,
-    }))
-    .filter((b) => b.amount > 0 && (b.spent / b.amount) * 100 >= b.alertThreshold)
-    .sort((a, b) => b.spent / b.amount - a.spent / a.amount);
 
   const lastMonthMap = Object.fromEntries(
     lastMonthSpending.map((s) => [s.categoryId, Number(s._sum.amountEur ?? 0)])
@@ -115,7 +96,6 @@ export default async function DashboardPage() {
       income={income}
       expenses={expenses}
       currentMonthLabel={now.toLocaleDateString("en-IE", { month: "long", year: "numeric" })}
-      alertBudgets={alertBudgets}
       insights={insights}
       accounts={accounts.map((a) => ({
         id: a.id,

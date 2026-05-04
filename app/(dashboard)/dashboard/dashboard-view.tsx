@@ -21,13 +21,6 @@ export type DashboardData = {
   income: number;
   expenses: number;
   currentMonthLabel: string;
-  alertBudgets: {
-    id: string;
-    category: { name: string };
-    spent: number;
-    amount: number;
-    alertThreshold: number;
-  }[];
   insights: {
     catId: string;
     name: string;
@@ -54,7 +47,7 @@ export type DashboardData = {
 };
 
 export function DashboardView(props: DashboardData) {
-  const { netWorth, income, expenses, currentMonthLabel, alertBudgets, insights, accounts, recentTxs } = props;
+  const { netWorth, income, expenses, currentMonthLabel, insights, accounts, recentTxs } = props;
   const [hidden, setHidden] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
   const router = useRouter();
@@ -111,34 +104,6 @@ export function DashboardView(props: DashboardData) {
         </button>
         </div>
       </div>
-
-      {/* Budget alerts */}
-      {alertBudgets.length > 0 && (
-        <div className="space-y-2">
-          {alertBudgets.map((b) => {
-            const pct = Math.round((b.spent / b.amount) * 100);
-            const exceeded = pct >= 100;
-            return (
-              <div
-                key={b.id}
-                className={`flex items-center justify-between rounded-lg px-4 py-2.5 text-sm ${
-                  exceeded
-                    ? "bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400"
-                    : "bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-400"
-                }`}
-              >
-                <span>
-                  <span className="font-medium">{b.category.name}</span>
-                  {exceeded ? " budget exceeded" : ` at ${pct}% of budget`}
-                </span>
-                <span className="font-medium tabular-nums">
-                  <Money n={b.spent} hidden={false} /> / <Money n={b.amount} hidden={false} />
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
