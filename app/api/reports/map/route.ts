@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const accountId = searchParams.get("accountId") ?? undefined;
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
   const where = {
     account: { userId: session.user.id },
     country: { not: null },
+    NOT: { category: { name: "Transfer" } },
     ...(accountId && { accountId }),
   };
 
@@ -21,10 +23,14 @@ export async function GET(req: NextRequest) {
     select: { country: true, city: true, amountEur: true, type: true },
   });
 
-  const countryMap: Record<string, { expenses: number; income: number; txCount: number; cities: Set<string> }> = {};
+  const countryMap: Record<
+    string,
+    { expenses: number; income: number; txCount: number; cities: Set<string> }
+  > = {};
   for (const tx of txs) {
     const c = tx.country!;
-    if (!countryMap[c]) countryMap[c] = { expenses: 0, income: 0, txCount: 0, cities: new Set() };
+    if (!countryMap[c])
+      countryMap[c] = { expenses: 0, income: 0, txCount: 0, cities: new Set() };
     countryMap[c].txCount++;
     if (tx.city) countryMap[c].cities.add(tx.city);
     if (tx.type === "EXPENSE") countryMap[c].expenses += Number(tx.amountEur);
