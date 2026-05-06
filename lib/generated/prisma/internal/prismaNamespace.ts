@@ -1155,6 +1155,10 @@ export const TransactionScalarFieldEnum = {
   type: 'type',
   description: 'description',
   date: 'date',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  city: 'city',
+  country: 'country',
   isRecurring: 'isRecurring',
   recurringId: 'recurringId',
   createdAt: 'createdAt',
@@ -1360,6 +1364,20 @@ export type ListEnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
  * Reference to a field of type 'CategoryType'
  */
 export type EnumCategoryTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoryType'>
@@ -1412,20 +1430,6 @@ export type EnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'DebtDirection[]'
  */
 export type ListEnumDebtDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtDirection[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**

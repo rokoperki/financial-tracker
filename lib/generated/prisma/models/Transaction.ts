@@ -29,11 +29,15 @@ export type AggregateTransaction = {
 export type TransactionAvgAggregateOutputType = {
   amount: runtime.Decimal | null
   amountEur: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
 }
 
 export type TransactionSumAggregateOutputType = {
   amount: runtime.Decimal | null
   amountEur: runtime.Decimal | null
+  latitude: number | null
+  longitude: number | null
 }
 
 export type TransactionMinAggregateOutputType = {
@@ -46,6 +50,10 @@ export type TransactionMinAggregateOutputType = {
   type: $Enums.TransactionType | null
   description: string | null
   date: Date | null
+  latitude: number | null
+  longitude: number | null
+  city: string | null
+  country: string | null
   isRecurring: boolean | null
   recurringId: string | null
   createdAt: Date | null
@@ -62,6 +70,10 @@ export type TransactionMaxAggregateOutputType = {
   type: $Enums.TransactionType | null
   description: string | null
   date: Date | null
+  latitude: number | null
+  longitude: number | null
+  city: string | null
+  country: string | null
   isRecurring: boolean | null
   recurringId: string | null
   createdAt: Date | null
@@ -78,6 +90,10 @@ export type TransactionCountAggregateOutputType = {
   type: number
   description: number
   date: number
+  latitude: number
+  longitude: number
+  city: number
+  country: number
   isRecurring: number
   recurringId: number
   createdAt: number
@@ -89,11 +105,15 @@ export type TransactionCountAggregateOutputType = {
 export type TransactionAvgAggregateInputType = {
   amount?: true
   amountEur?: true
+  latitude?: true
+  longitude?: true
 }
 
 export type TransactionSumAggregateInputType = {
   amount?: true
   amountEur?: true
+  latitude?: true
+  longitude?: true
 }
 
 export type TransactionMinAggregateInputType = {
@@ -106,6 +126,10 @@ export type TransactionMinAggregateInputType = {
   type?: true
   description?: true
   date?: true
+  latitude?: true
+  longitude?: true
+  city?: true
+  country?: true
   isRecurring?: true
   recurringId?: true
   createdAt?: true
@@ -122,6 +146,10 @@ export type TransactionMaxAggregateInputType = {
   type?: true
   description?: true
   date?: true
+  latitude?: true
+  longitude?: true
+  city?: true
+  country?: true
   isRecurring?: true
   recurringId?: true
   createdAt?: true
@@ -138,6 +166,10 @@ export type TransactionCountAggregateInputType = {
   type?: true
   description?: true
   date?: true
+  latitude?: true
+  longitude?: true
+  city?: true
+  country?: true
   isRecurring?: true
   recurringId?: true
   createdAt?: true
@@ -241,6 +273,10 @@ export type TransactionGroupByOutputType = {
   type: $Enums.TransactionType
   description: string | null
   date: Date
+  latitude: number | null
+  longitude: number | null
+  city: string | null
+  country: string | null
   isRecurring: boolean
   recurringId: string | null
   createdAt: Date
@@ -280,6 +316,10 @@ export type TransactionWhereInput = {
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
   description?: Prisma.StringNullableFilter<"Transaction"> | string | null
   date?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+  latitude?: Prisma.FloatNullableFilter<"Transaction"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Transaction"> | number | null
+  city?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  country?: Prisma.StringNullableFilter<"Transaction"> | string | null
   isRecurring?: Prisma.BoolFilter<"Transaction"> | boolean
   recurringId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -300,6 +340,10 @@ export type TransactionOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrderInput | Prisma.SortOrder
+  country?: Prisma.SortOrderInput | Prisma.SortOrder
   isRecurring?: Prisma.SortOrder
   recurringId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -323,6 +367,10 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
   description?: Prisma.StringNullableFilter<"Transaction"> | string | null
   date?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+  latitude?: Prisma.FloatNullableFilter<"Transaction"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Transaction"> | number | null
+  city?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  country?: Prisma.StringNullableFilter<"Transaction"> | string | null
   isRecurring?: Prisma.BoolFilter<"Transaction"> | boolean
   recurringId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -343,6 +391,10 @@ export type TransactionOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  city?: Prisma.SortOrderInput | Prisma.SortOrder
+  country?: Prisma.SortOrderInput | Prisma.SortOrder
   isRecurring?: Prisma.SortOrder
   recurringId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -367,6 +419,10 @@ export type TransactionScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumTransactionTypeWithAggregatesFilter<"Transaction"> | $Enums.TransactionType
   description?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   date?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
+  latitude?: Prisma.FloatNullableWithAggregatesFilter<"Transaction"> | number | null
+  longitude?: Prisma.FloatNullableWithAggregatesFilter<"Transaction"> | number | null
+  city?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
+  country?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   isRecurring?: Prisma.BoolWithAggregatesFilter<"Transaction"> | boolean
   recurringId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
@@ -381,6 +437,10 @@ export type TransactionCreateInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -400,6 +460,10 @@ export type TransactionUncheckedCreateInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -415,6 +479,10 @@ export type TransactionUpdateInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -434,6 +502,10 @@ export type TransactionUncheckedUpdateInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -451,6 +523,10 @@ export type TransactionCreateManyInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -465,6 +541,10 @@ export type TransactionUpdateManyMutationInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -480,6 +560,10 @@ export type TransactionUncheckedUpdateManyInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -506,6 +590,10 @@ export type TransactionCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   date?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  country?: Prisma.SortOrder
   isRecurring?: Prisma.SortOrder
   recurringId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -515,6 +603,8 @@ export type TransactionCountOrderByAggregateInput = {
 export type TransactionAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   amountEur?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type TransactionMaxOrderByAggregateInput = {
@@ -527,6 +617,10 @@ export type TransactionMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   date?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  country?: Prisma.SortOrder
   isRecurring?: Prisma.SortOrder
   recurringId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -543,6 +637,10 @@ export type TransactionMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   date?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  city?: Prisma.SortOrder
+  country?: Prisma.SortOrder
   isRecurring?: Prisma.SortOrder
   recurringId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -552,6 +650,8 @@ export type TransactionMinOrderByAggregateInput = {
 export type TransactionSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   amountEur?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type TransactionNullableScalarRelationFilter = {
@@ -603,6 +703,14 @@ export type TransactionUncheckedUpdateManyWithoutAccountNestedInput = {
 
 export type EnumTransactionTypeFieldUpdateOperationsInput = {
   set?: $Enums.TransactionType
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type TransactionCreateNestedManyWithoutCategoryInput = {
@@ -713,6 +821,10 @@ export type TransactionCreateWithoutAccountInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -730,6 +842,10 @@ export type TransactionUncheckedCreateWithoutAccountInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -776,6 +892,10 @@ export type TransactionScalarWhereInput = {
   type?: Prisma.EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
   description?: Prisma.StringNullableFilter<"Transaction"> | string | null
   date?: Prisma.DateTimeFilter<"Transaction"> | Date | string
+  latitude?: Prisma.FloatNullableFilter<"Transaction"> | number | null
+  longitude?: Prisma.FloatNullableFilter<"Transaction"> | number | null
+  city?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  country?: Prisma.StringNullableFilter<"Transaction"> | string | null
   isRecurring?: Prisma.BoolFilter<"Transaction"> | boolean
   recurringId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
@@ -790,6 +910,10 @@ export type TransactionCreateWithoutCategoryInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -807,6 +931,10 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -848,6 +976,10 @@ export type TransactionCreateWithoutRecurringInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -866,6 +998,10 @@ export type TransactionUncheckedCreateWithoutRecurringInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -906,6 +1042,10 @@ export type TransactionCreateWithoutDebtPaymentInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -924,6 +1064,10 @@ export type TransactionUncheckedCreateWithoutDebtPaymentInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -954,6 +1098,10 @@ export type TransactionUpdateWithoutDebtPaymentInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -972,6 +1120,10 @@ export type TransactionUncheckedUpdateWithoutDebtPaymentInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -987,6 +1139,10 @@ export type TransactionCreateManyAccountInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -1001,6 +1157,10 @@ export type TransactionUpdateWithoutAccountInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1018,6 +1178,10 @@ export type TransactionUncheckedUpdateWithoutAccountInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1034,6 +1198,10 @@ export type TransactionUncheckedUpdateManyWithoutAccountInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1049,6 +1217,10 @@ export type TransactionCreateManyCategoryInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   recurringId?: string | null
   createdAt?: Date | string
@@ -1063,6 +1235,10 @@ export type TransactionUpdateWithoutCategoryInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1080,6 +1256,10 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1096,6 +1276,10 @@ export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   recurringId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1112,6 +1296,10 @@ export type TransactionCreateManyRecurringInput = {
   type: $Enums.TransactionType
   description?: string | null
   date: Date | string
+  latitude?: number | null
+  longitude?: number | null
+  city?: string | null
+  country?: string | null
   isRecurring?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1125,6 +1313,10 @@ export type TransactionUpdateWithoutRecurringInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1143,6 +1335,10 @@ export type TransactionUncheckedUpdateWithoutRecurringInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1159,6 +1355,10 @@ export type TransactionUncheckedUpdateManyWithoutRecurringInput = {
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitude?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1176,6 +1376,10 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   type?: boolean
   description?: boolean
   date?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  city?: boolean
+  country?: boolean
   isRecurring?: boolean
   recurringId?: boolean
   createdAt?: boolean
@@ -1196,6 +1400,10 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   type?: boolean
   description?: boolean
   date?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  city?: boolean
+  country?: boolean
   isRecurring?: boolean
   recurringId?: boolean
   createdAt?: boolean
@@ -1215,6 +1423,10 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   type?: boolean
   description?: boolean
   date?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  city?: boolean
+  country?: boolean
   isRecurring?: boolean
   recurringId?: boolean
   createdAt?: boolean
@@ -1234,13 +1446,17 @@ export type TransactionSelectScalar = {
   type?: boolean
   description?: boolean
   date?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  city?: boolean
+  country?: boolean
   isRecurring?: boolean
   recurringId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "categoryId" | "amount" | "amountEur" | "currency" | "type" | "description" | "date" | "isRecurring" | "recurringId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "categoryId" | "amount" | "amountEur" | "currency" | "type" | "description" | "date" | "latitude" | "longitude" | "city" | "country" | "isRecurring" | "recurringId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   account?: boolean | Prisma.AccountDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
@@ -1276,6 +1492,10 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     type: $Enums.TransactionType
     description: string | null
     date: Date
+    latitude: number | null
+    longitude: number | null
+    city: string | null
+    country: string | null
     isRecurring: boolean
     recurringId: string | null
     createdAt: Date
@@ -1716,6 +1936,10 @@ export interface TransactionFieldRefs {
   readonly type: Prisma.FieldRef<"Transaction", 'TransactionType'>
   readonly description: Prisma.FieldRef<"Transaction", 'String'>
   readonly date: Prisma.FieldRef<"Transaction", 'DateTime'>
+  readonly latitude: Prisma.FieldRef<"Transaction", 'Float'>
+  readonly longitude: Prisma.FieldRef<"Transaction", 'Float'>
+  readonly city: Prisma.FieldRef<"Transaction", 'String'>
+  readonly country: Prisma.FieldRef<"Transaction", 'String'>
   readonly isRecurring: Prisma.FieldRef<"Transaction", 'Boolean'>
   readonly recurringId: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
