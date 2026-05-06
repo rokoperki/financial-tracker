@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { accountId, categoryId, amount, currency, type, description, date } = await req.json();
+  const { accountId, categoryId, amount, currency, type, description, date, latitude, longitude, city, country } = await req.json();
 
   if (!accountId || !amount || !type || !date) {
     return NextResponse.json(
@@ -81,6 +81,10 @@ export async function POST(req: NextRequest) {
       type: type as TransactionType,
       description: description || null,
       date: new Date(date),
+      latitude: latitude ?? null,
+      longitude: longitude ?? null,
+      city: city || null,
+      country: country || null,
     },
     include: { account: true, category: true },
   });

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { COUNTRIES, countryByCode } from "@/lib/countries";
 
 type Account = { id: string; name: string; currency: string };
 type Category = { id: string; name: string; type: string; color: string };
@@ -9,6 +10,8 @@ const inputCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 
 const selectCls = "w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm dark:text-zinc-100";
 const labelCls = "block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1";
 
+type Location = { latitude: number; longitude: number; city: string; country: string };
+
 export default function NewTransactionPage() {
   const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -16,6 +19,9 @@ export default function NewTransactionPage() {
   const [txType, setTxType] = useState("EXPENSE");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [location, setLocation] = useState<Location | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -23,6 +29,33 @@ export default function NewTransactionPage() {
       fetch("/api/categories").then((r) => r.json()),
     ]).then(([a, c]) => { setAccounts(a); setCategories(c); });
   }, []);
+
+  async function detectLocation() {
+    if (!navigator.geolocation) { setGeoError("Geolocation not supported"); return; }
+    setGeoLoading(true);
+    setGeoError("");
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          const res = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          const geo = await res.json();
+          setLocation({
+            latitude,
+            longitude,
+            city: geo.city || geo.locality || "",
+            country: geo.countryCode || "",
+          });
+        } catch {
+          setLocation({ latitude, longitude, city: "", country: "" });
+        }
+        setGeoLoading(false);
+      },
+      () => { setGeoError("Permission denied"); setGeoLoading(false); }
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,6 +73,12 @@ export default function NewTransactionPage() {
         type: form.get("type"),
         description: form.get("description"),
         date: form.get("date"),
+        ...(location && {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          city: location.city,
+          country: location.country,
+        }),
       }),
     });
     setLoading(false);
@@ -116,6 +155,38 @@ export default function NewTransactionPage() {
         <div>
           <label className={labelCls}>Description</label>
           <input name="description" placeholder="Optional" className={inputCls} />
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className={labelCls}>Location</label>
+          {location ? (
+            <div className="flex items-center gap-2">
+              <div className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 px-3 py-2 text-sm">
+                {[location.city, location.country ? (countryByCode[location.country] ?? location.country) : ""].filter(Boolean).join(", ") || `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`}
+              </div>
+              <button
+                type="button"
+                onClick={() => setLocation(null)}
+                className="text-xs text-zinc-400 hover:text-red-500 px-2 py-2"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={detectLocation}
+              disabled={geoLoading}
+              className="flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-50 w-full"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3" /><path d="M12 2v3m0 14v3M2 12h3m14 0h3" /><circle cx="12" cy="12" r="10" />
+              </svg>
+              {geoLoading ? "Detecting…" : "Detect my location"}
+            </button>
+          )}
+          {geoError && <p className="text-xs text-red-500 mt-1">{geoError}</p>}
         </div>
 
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}

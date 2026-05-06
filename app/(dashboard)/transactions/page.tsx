@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { COUNTRIES, countryByCode } from "@/lib/countries";
 
 type Account = { id: string; name: string };
 type Category = { id: string; name: string; color: string; type: string };
@@ -16,6 +17,10 @@ type Transaction = {
   date: string;
   account: Account;
   category: Category | null;
+  city: string | null;
+  country: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 type EditForm = {
@@ -25,6 +30,8 @@ type EditForm = {
   date: string;
   amount: string;
   currency: string;
+  city: string;
+  country: string;
 };
 
 function fmt(n: number) {
@@ -52,7 +59,7 @@ function TransactionsInner() {
   const [dateTo, setDateTo] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState<EditForm>({ type: "EXPENSE", description: "", categoryId: "", date: "", amount: "", currency: "EUR" });
+  const [editForm, setEditForm] = useState<EditForm>({ type: "EXPENSE", description: "", categoryId: "", date: "", amount: "", currency: "EUR", city: "", country: "" });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -89,6 +96,8 @@ function TransactionsInner() {
       date: new Date(tx.date).toISOString().split("T")[0],
       amount: tx.amount,
       currency: tx.currency,
+      city: tx.city ?? "",
+      country: tx.country ?? "",
     });
   }
 
@@ -104,6 +113,8 @@ function TransactionsInner() {
         date: editForm.date,
         amount: editForm.amount,
         currency: editForm.currency,
+        city: editForm.city || null,
+        country: editForm.country || null,
       }),
     });
     setSaving(false);
@@ -218,6 +229,7 @@ function TransactionsInner() {
                         <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                           {tx.account.name} · {new Date(tx.date).toLocaleDateString("en-IE")}
                           {tx.category && ` · ${tx.category.name}`}
+                          {(tx.city || tx.country) && ` · ${[tx.city, tx.country ? (countryByCode[tx.country] ?? tx.country) : ""].filter(Boolean).join(", ")}`}
                         </p>
                       </div>
                     </div>
@@ -314,6 +326,28 @@ function TransactionsInner() {
                             onChange={(e) => setEditForm((f) => ({ ...f, date: e.target.value }))}
                             className={inputCls}
                           />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">City</span>
+                          <input
+                            value={editForm.city}
+                            onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
+                            placeholder="Optional"
+                            className={`${inputCls} w-28`}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">Country</span>
+                          <select
+                            value={editForm.country}
+                            onChange={(e) => setEditForm((f) => ({ ...f, country: e.target.value }))}
+                            className={`${selectCls} min-w-[140px]`}
+                          >
+                            <option value="">— None —</option>
+                            {COUNTRIES.map((c) => (
+                              <option key={c.code} value={c.code}>{c.name} ({c.code})</option>
+                            ))}
+                          </select>
                         </div>
                         <button
                           onClick={() => saveEdit(tx)}

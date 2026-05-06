@@ -55,6 +55,10 @@ model Transaction {
   type        TransactionType
   description String?
   date        DateTime
+  latitude    Float?
+  longitude   Float?
+  city        String?
+  country     String?
   isRecurring Boolean         @default(false)
   recurringId String?
   recurring   RecurringRule?  @relation(fields: [recurringId], references: [id])

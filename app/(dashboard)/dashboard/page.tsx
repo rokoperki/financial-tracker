@@ -13,8 +13,10 @@ export default async function DashboardPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(now.getDate() - 29);
 
-  const [accounts, incomeAgg, expensesAgg, recentTxs, thisMonthSpending, lastMonthSpending] =
+  const [accounts, incomeAgg, expensesAgg, recentTxs, thisMonthSpending, lastMonthSpending, sparklineTxs] =
     await Promise.all([
       prisma.account.findMany({
         where: { userId: session.user.id, isActive: true },
@@ -54,6 +56,15 @@ export default async function DashboardPage() {
         },
         _sum: { amountEur: true },
       }),
+      prisma.transaction.findMany({
+        where: {
+          account: { userId: session.user.id, isActive: true },
+          type: { in: ["INCOME", "EXPENSE"] },
+          date: { gte: thirtyDaysAgo },
+        },
+        select: { accountId: true, amount: true, amountEur: true, type: true, date: true },
+        orderBy: { date: "asc" },
+      }),
     ]);
 
   const currencies = [...new Set(accounts.map((a) => a.currency))];
@@ -90,6 +101,26 @@ export default async function DashboardPage() {
     .sort((a, b) => Math.abs(b!.pct) - Math.abs(a!.pct))
     .slice(0, 3) as { catId: string; name: string; pct: number; thisMonth: number; lastMonth: number }[];
 
+  // Build 30-day sparklines per account (cumulative net change from 30 days ago)
+  const days = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(thirtyDaysAgo);
+    d.setDate(thirtyDaysAgo.getDate() + i);
+    return d.toISOString().slice(0, 10);
+  });
+
+  const sparklines = accounts.map((account) => {
+    const accTxs = sparklineTxs.filter((tx) => tx.accountId === account.id);
+    const useNative = account.currency !== "EUR";
+    const dayMap: Record<string, number> = {};
+    for (const tx of accTxs) {
+      const key = new Date(tx.date).toISOString().slice(0, 10);
+      const amt = useNative ? Number(tx.amount) : Number(tx.amountEur);
+      dayMap[key] = (dayMap[key] ?? 0) + (tx.type === "INCOME" ? amt : -amt);
+    }
+    let cum = 0;
+    return days.map((d) => { cum += dayMap[d] ?? 0; return cum; });
+  });
+
   return (
     <DashboardView
       netWorth={netWorth}
@@ -97,12 +128,13 @@ export default async function DashboardPage() {
       expenses={expenses}
       currentMonthLabel={now.toLocaleDateString("en-IE", { month: "long", year: "numeric" })}
       insights={insights}
-      accounts={accounts.map((a) => ({
+      accounts={accounts.map((a, i) => ({
         id: a.id,
         name: a.name,
         type: a.type,
         balance: Number(a.balance),
         currency: a.currency,
+        sparkline: sparklines[i],
       }))}
       recentTxs={recentTxs.map((tx) => ({
         id: tx.id,

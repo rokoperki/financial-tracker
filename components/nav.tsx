@@ -12,6 +12,7 @@ const links = [
   { href: "/categories", label: "Categories" },
   { href: "/reports", label: "Reports" },
   { href: "/debts", label: "Debts" },
+  { href: "/map", label: "Map" },
 ];
 
 export function Nav() {

@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const { categoryId, description, date, amount, currency, type } = await req.json();
+  const { categoryId, description, date, amount, currency, type, latitude, longitude, city, country } = await req.json();
 
   const newType: TransactionType = type ?? existing.type;
   const newAmount = amount !== undefined ? Number(amount) : Number(existing.amount);
@@ -59,12 +59,20 @@ export async function PUT(req: NextRequest, { params }: Params) {
       where: { id },
       data: {
         type: newType,
-        categoryId: categoryId !== undefined ? (categoryId || null) : existing.categoryId,
+        category: (() => {
+          const resolvedId = categoryId !== undefined ? (categoryId || null) : existing.categoryId;
+          if (resolvedId) return { connect: { id: resolvedId } };
+          return { disconnect: true };
+        })(),
         description: description !== undefined ? (description || null) : existing.description,
         date: date ? new Date(date) : existing.date,
         amount: newAmount,
         currency: newCurrency,
         amountEur: newAmountEur,
+        latitude: latitude !== undefined ? (latitude ?? null) : existing.latitude,
+        longitude: longitude !== undefined ? (longitude ?? null) : existing.longitude,
+        city: city !== undefined ? (city || null) : existing.city,
+        country: country !== undefined ? (country || null) : existing.country,
       },
     });
     if (!skipBalance && balanceDelta !== 0) {
