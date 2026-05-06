@@ -39,11 +39,18 @@ export async function GET(req: NextRequest) {
     ? { accountId, account: { userId: session.user.id } }
     : { account: { userId: session.user.id }, NOT: { category: { name: "Transfer" } } };
 
-  const [spendingRaw, monthlyData, netWorthData, dailyTxs] = await Promise.all([
+  const [spendingRaw, incomeRaw, monthlyData, netWorthData, dailyTxs] = await Promise.all([
     // Spending by category for selected month
     prisma.transaction.groupBy({
       by: ["categoryId"],
       where: { ...base, type: "EXPENSE", date: { gte: startOfMonth, lte: endOfMonth }, categoryId: { not: null } },
+      _sum: { amountEur: true },
+      orderBy: { _sum: { amountEur: "desc" } },
+    }),
+    // Income by category for selected month
+    prisma.transaction.groupBy({
+      by: ["categoryId"],
+      where: { ...base, type: "INCOME", date: { gte: startOfMonth, lte: endOfMonth }, categoryId: { not: null } },
       _sum: { amountEur: true },
       orderBy: { _sum: { amountEur: "desc" } },
     }),
@@ -93,7 +100,10 @@ export async function GET(req: NextRequest) {
     expenses: Math.round((dayMap[i + 1]?.expenses ?? 0) * 100) / 100,
   }));
 
-  const catIds = spendingRaw.map((s) => s.categoryId!).filter(Boolean);
+  const catIds = [...new Set([
+    ...spendingRaw.map((s) => s.categoryId!),
+    ...incomeRaw.map((s) => s.categoryId!),
+  ].filter(Boolean))];
   const categories = await prisma.category.findMany({ where: { id: { in: catIds } } });
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
 
@@ -104,5 +114,12 @@ export async function GET(req: NextRequest) {
     color: catMap[s.categoryId!]?.color ?? "#94a3b8",
   }));
 
-  return NextResponse.json({ spendingByCategory, incomeVsExpenses: monthlyData, netWorthTrend: netWorthData, dailyBreakdown });
+  const incomeByCategory = incomeRaw.map((s) => ({
+    id: s.categoryId!,
+    name: catMap[s.categoryId!]?.name ?? "Uncategorized",
+    value: Number(s._sum.amountEur ?? 0),
+    color: catMap[s.categoryId!]?.color ?? "#94a3b8",
+  }));
+
+  return NextResponse.json({ spendingByCategory, incomeByCategory, incomeVsExpenses: monthlyData, netWorthTrend: netWorthData, dailyBreakdown });
 }

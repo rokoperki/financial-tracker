@@ -18,12 +18,8 @@ import {
 
 type Account = { id: string; name: string };
 type ChartData = {
-  spendingByCategory: {
-    id: string;
-    name: string;
-    value: number;
-    color: string;
-  }[];
+  spendingByCategory: { id: string; name: string; value: number; color: string }[];
+  incomeByCategory: { id: string; name: string; value: number; color: string }[];
   incomeVsExpenses: {
     month: string;
     monthKey: string;
@@ -85,6 +81,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
+  const [pieView, setPieView] = useState<"EXPENSE" | "INCOME">("EXPENSE");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
@@ -130,7 +127,7 @@ export default function ReportsPage() {
     setSelectedCategoryId(null);
     setSelectedCategoryName(null);
     setSelectedDay(null);
-  }, [month]);
+  }, [month, pieView]);
 
   useEffect(() => {
     setTxsLoading(true);
@@ -170,13 +167,14 @@ export default function ReportsPage() {
     setCategoryTrendLoading(true);
     const params = new URLSearchParams({ categoryId: selectedCategoryId });
     if (accountId) params.set("accountId", accountId);
+    params.set("type", pieView);
     fetch(`/api/reports/category-trend?${params}`)
       .then((r) => r.json())
       .then((d) => {
         setCategoryTrend(d);
         setCategoryTrendLoading(false);
       });
-  }, [selectedCategoryId, accountId]);
+  }, [selectedCategoryId, accountId, pieView]);
 
   function toggleCategory(id: string, name: string, color?: string) {
     if (selectedCategoryId === id) {
@@ -252,103 +250,88 @@ export default function ReportsPage() {
           {/* Row 1: spending by category + net worth */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
-              <h2 className="font-semibold mb-1">Spending by category</h2>
+              <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+                <h2 className="font-semibold">
+                  {pieView === "EXPENSE" ? "Spending" : "Income"} by category
+                </h2>
+                <div className="flex rounded-lg border border-[var(--border)] overflow-hidden text-xs">
+                  {(["EXPENSE", "INCOME"] as const).map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setPieView(v)}
+                      className={`px-3 py-1 font-medium transition-colors ${
+                        pieView === v
+                          ? v === "EXPENSE"
+                            ? "bg-red-500 text-white"
+                            : "bg-emerald-500 text-white"
+                          : "text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                      }`}
+                    >
+                      {v === "EXPENSE" ? "Expenses" : "Income"}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4">
                 Click a category to filter transactions
               </p>
-              {data.spendingByCategory.length === 0 ? (
-                <p className="text-sm text-zinc-400 dark:text-zinc-500 py-8 text-center">
-                  No expense data
-                </p>
-              ) : (
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
-                    gap: 16,
-                    alignItems: "center",
-                  }}
-                >
-                  <div
-                    style={{ width: isMobile ? "100%" : "60%", flexShrink: 0 }}
-                  >
-                    <ResponsiveContainer width="100%" height={220}>
-                      <PieChart>
-                        <Pie
-                          data={data.spendingByCategory}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={55}
-                          outerRadius={90}
-                          paddingAngle={2}
-                          dataKey="value"
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          onClick={(entry: any) =>
-                            toggleCategory(entry.id, entry.name, entry.color)
-                          }
-                          style={{ cursor: "pointer" }}
+              {(() => {
+                const pieData = pieView === "EXPENSE" ? data.spendingByCategory : data.incomeByCategory;
+                if (pieData.length === 0) return (
+                  <p className="text-sm text-zinc-400 dark:text-zinc-500 py-8 text-center">
+                    No {pieView === "EXPENSE" ? "expense" : "income"} data
+                  </p>
+                );
+                return (
+                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 16, alignItems: "center" }}>
+                    <div style={{ width: isMobile ? "100%" : "60%", flexShrink: 0 }}>
+                      <ResponsiveContainer width="100%" height={220}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={55}
+                            outerRadius={90}
+                            paddingAngle={2}
+                            dataKey="value"
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            onClick={(entry: any) => toggleCategory(entry.id, entry.name, entry.color)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {pieData.map((entry, i) => (
+                              <Cell
+                                key={i}
+                                fill={entry.color}
+                                opacity={selectedCategoryId && selectedCategoryId !== entry.id ? 0.3 : 1}
+                                stroke={selectedCategoryId === entry.id ? "#fff" : "none"}
+                                strokeWidth={selectedCategoryId === entry.id ? 2 : 0}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(v) => fmtFull(Number(v))} {...tooltipStyle} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0, width: "100%" }} className="space-y-1.5">
+                      {pieData.map((e, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-2 text-xs cursor-pointer rounded px-1 py-0.5 hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
+                          style={{ opacity: selectedCategoryId && selectedCategoryId !== e.id ? 0.35 : 1 }}
+                          onClick={() => toggleCategory(e.id, e.name, e.color)}
                         >
-                          {data.spendingByCategory.map((entry, i) => (
-                            <Cell
-                              key={i}
-                              fill={entry.color}
-                              opacity={
-                                selectedCategoryId &&
-                                selectedCategoryId !== entry.id
-                                  ? 0.3
-                                  : 1
-                              }
-                              stroke={
-                                selectedCategoryId === entry.id
-                                  ? "#fff"
-                                  : "none"
-                              }
-                              strokeWidth={
-                                selectedCategoryId === entry.id ? 2 : 0
-                              }
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          formatter={(v) => fmtFull(Number(v))}
-                          {...tooltipStyle}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div
-                    style={{ flex: 1, minWidth: 0, width: "100%" }}
-                    className="space-y-1.5"
-                  >
-                    {data.spendingByCategory.map((e, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between gap-2 text-xs cursor-pointer rounded px-1 py-0.5 hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
-                        style={{
-                          opacity:
-                            selectedCategoryId && selectedCategoryId !== e.id
-                              ? 0.35
-                              : 1,
-                        }}
-                        onClick={() => toggleCategory(e.id, e.name, e.color)}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <div
-                            className="h-2 w-2 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: e.color }}
-                          />
-                          <span className="truncate text-zinc-600 dark:text-zinc-400">
-                            {e.name}
-                          </span>
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: e.color }} />
+                            <span className="truncate text-zinc-600 dark:text-zinc-400">{e.name}</span>
+                          </div>
+                          <span className="font-medium tabular-nums flex-shrink-0">{fmtFull(e.value)}</span>
                         </div>
-                        <span className="font-medium tabular-nums flex-shrink-0">
-                          {fmtFull(e.value)}
-                        </span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
 
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
@@ -437,7 +420,7 @@ export default function ReportsPage() {
                 </button>
               </div>
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4 ml-5">
-                Monthly spending trend
+                Monthly {pieView === "INCOME" ? "income" : "spending"} trend
               </p>
               {categoryTrendLoading ? (
                 <div className="flex items-center justify-center h-[200px] text-zinc-400 text-sm">

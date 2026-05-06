@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const categoryId = searchParams.get("categoryId");
   const accountId = searchParams.get("accountId") ?? undefined;
+  const type = (searchParams.get("type") ?? "EXPENSE") as "EXPENSE" | "INCOME";
 
   if (!categoryId) return NextResponse.json({ error: "categoryId required" }, { status: 400 });
 
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
       const start = new Date(year, month - 1, 1);
       const end = new Date(year, month, 0, 23, 59, 59);
       const agg = await prisma.transaction.aggregate({
-        where: { ...base, categoryId, type: "EXPENSE", date: { gte: start, lte: end } },
+        where: { ...base, categoryId, type, date: { gte: start, lte: end } },
         _sum: { amountEur: true },
       });
       return { month: label, monthKey: key, value: Number(agg._sum.amountEur ?? 0) };
