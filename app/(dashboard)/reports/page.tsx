@@ -65,6 +65,18 @@ function fmtFull(n: number) {
   }).format(n);
 }
 
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: "var(--card)",
+    border: "1px solid var(--border)",
+    borderRadius: 8,
+    color: "var(--foreground)",
+    fontSize: 12,
+  },
+  itemStyle: { color: "var(--foreground)" },
+  labelStyle: { color: "var(--foreground)", fontWeight: 600 },
+};
+
 export default function ReportsPage() {
   const [month, setMonth] = useState(currentMonth());
   const [accountId, setAccountId] = useState("");
@@ -79,9 +91,15 @@ export default function ReportsPage() {
   const [selectedCategoryName, setSelectedCategoryName] = useState<
     string | null
   >(null);
+  const [selectedCategoryColor, setSelectedCategoryColor] =
+    useState<string>("#6366f1");
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [txs, setTxs] = useState<TxItem[]>([]);
   const [txsLoading, setTxsLoading] = useState(false);
+  const [categoryTrend, setCategoryTrend] = useState<
+    { month: string; monthKey: string; value: number }[]
+  >([]);
+  const [categoryTrendLoading, setCategoryTrendLoading] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -144,13 +162,30 @@ export default function ReportsPage() {
     window.location.href = `/api/reports/export?${params}`;
   }
 
-  function toggleCategory(id: string, name: string) {
+  useEffect(() => {
+    if (!selectedCategoryId) {
+      setCategoryTrend([]);
+      return;
+    }
+    setCategoryTrendLoading(true);
+    const params = new URLSearchParams({ categoryId: selectedCategoryId });
+    if (accountId) params.set("accountId", accountId);
+    fetch(`/api/reports/category-trend?${params}`)
+      .then((r) => r.json())
+      .then((d) => {
+        setCategoryTrend(d);
+        setCategoryTrendLoading(false);
+      });
+  }, [selectedCategoryId, accountId]);
+
+  function toggleCategory(id: string, name: string, color?: string) {
     if (selectedCategoryId === id) {
       setSelectedCategoryId(null);
       setSelectedCategoryName(null);
     } else {
       setSelectedCategoryId(id);
       setSelectedCategoryName(name);
+      if (color) setSelectedCategoryColor(color);
     }
   }
 
@@ -249,7 +284,7 @@ export default function ReportsPage() {
                           dataKey="value"
                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           onClick={(entry: any) =>
-                            toggleCategory(entry.id, entry.name)
+                            toggleCategory(entry.id, entry.name, entry.color)
                           }
                           style={{ cursor: "pointer" }}
                         >
@@ -274,7 +309,10 @@ export default function ReportsPage() {
                             />
                           ))}
                         </Pie>
-                        <Tooltip formatter={(v) => fmtFull(Number(v))} />
+                        <Tooltip
+                          formatter={(v) => fmtFull(Number(v))}
+                          {...tooltipStyle}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -292,7 +330,7 @@ export default function ReportsPage() {
                               ? 0.35
                               : 1,
                         }}
-                        onClick={() => toggleCategory(e.id, e.name)}
+                        onClick={() => toggleCategory(e.id, e.name, e.color)}
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div
@@ -354,7 +392,10 @@ export default function ReportsPage() {
                     tickFormatter={(v) => fmt(v)}
                     width={70}
                   />
-                  <Tooltip formatter={(v) => fmt(Number(v))} />
+                  <Tooltip
+                    formatter={(v) => fmt(Number(v))}
+                    {...tooltipStyle}
+                  />
                   <Area
                     type="monotone"
                     dataKey="value"
@@ -368,6 +409,119 @@ export default function ReportsPage() {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Category trend — shown when a category is selected */}
+          {selectedCategoryId && (
+            <div
+              className="rounded-xl border-2 bg-[var(--card)] p-6"
+              style={{ borderColor: selectedCategoryColor + "66" }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: selectedCategoryColor }}
+                  />
+                  <h2 className="font-semibold">
+                    {selectedCategoryName} — last 12 months
+                  </h2>
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedCategoryId(null);
+                    setSelectedCategoryName(null);
+                  }}
+                  className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+                >
+                  ✕ Close
+                </button>
+              </div>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-4 ml-5">
+                Monthly spending trend
+              </p>
+              {categoryTrendLoading ? (
+                <div className="flex items-center justify-center h-[200px] text-zinc-400 text-sm">
+                  Loading…
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart
+                    data={categoryTrend}
+                    margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
+                    style={{ cursor: "pointer" }}
+                    onClick={(chartData: any) => {
+                      if (chartData?.activeLabel) {
+                        const entry = categoryTrend.find(
+                          (d) => d.month === chartData.activeLabel,
+                        );
+                        if (entry?.monthKey) setMonth(entry.monthKey);
+                      }
+                    }}
+                  >
+                    <defs>
+                      <linearGradient id="catGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor={selectedCategoryColor}
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor={selectedCategoryColor}
+                          stopOpacity={0.4}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 11 }}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(v) => fmt(v)}
+                      width={70}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      formatter={(v) => [
+                        fmtFull(Number(v)),
+                        selectedCategoryName ?? "Spending",
+                      ]}
+                      labelFormatter={(l) => String(l)}
+                      cursor={{ fill: selectedCategoryColor, opacity: 0.08 }}
+                      {...tooltipStyle}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="url(#catGrad)"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={40}
+                    >
+                      {categoryTrend.map((entry, i) => (
+                        <Cell
+                          key={i}
+                          fill={
+                            entry.monthKey === month
+                              ? selectedCategoryColor
+                              : "url(#catGrad)"
+                          }
+                          opacity={entry.value === 0 ? 0.2 : 1}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          )}
 
           {/* Row 2: daily breakdown */}
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
@@ -418,6 +572,7 @@ export default function ReportsPage() {
                   <Tooltip
                     formatter={(v, name) => [fmt(Number(v)), name]}
                     labelFormatter={(d) => `Day ${d}`}
+                    {...tooltipStyle}
                   />
                   <Legend />
                   <Bar
@@ -475,7 +630,7 @@ export default function ReportsPage() {
                   tickFormatter={(v) => fmt(v)}
                   width={70}
                 />
-                <Tooltip formatter={(v) => fmt(Number(v))} />
+                <Tooltip formatter={(v) => fmt(Number(v))} {...tooltipStyle} />
                 <Legend />
                 <Bar
                   dataKey="income"
