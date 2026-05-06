@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { feature } from "topojson-client";
+import type { Topology, GeometryCollection } from "topojson-specification";
 import { iso2ToNumeric } from "@/lib/country-codes";
 import { countryByCode } from "@/lib/countries";
 
@@ -19,18 +21,17 @@ type Account = { id: string; name: string };
 function fmt(n: number) {
   return new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
-
 function fmtFull(n: number) {
   return new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" }).format(n);
 }
 
 function getColor(expenses: number, max: number, isDark: boolean): string {
-  if (expenses === 0) return isDark ? "#1e293b" : "#cbd5e1";
+  if (expenses === 0) return isDark ? "#27272a" : "#e4e4e7";
   const t = Math.pow(expenses / max, 0.45);
   if (isDark) {
-    const r = Math.round(30 + t * (239 - 30));
-    const g = Math.round(41 + t * (68 - 100));
-    const b = Math.round(59 + t * (68 - 120));
+    const r = Math.round(80 + t * (239 - 80));
+    const g = Math.round(30 - t * 30);
+    const b = Math.round(30 - t * 30);
     return `rgb(${r},${Math.max(0, g)},${Math.max(0, b)})`;
   }
   const r = Math.round(254 - t * (254 - 185));
@@ -39,7 +40,11 @@ function getColor(expenses: number, max: number, isDark: boolean): string {
   return `rgb(${r},${g},${b})`;
 }
 
+const W = 960;
+const H = 500;
+
 export default function MapPage() {
+  const [geoData, setGeoData] = useState<{ id: string; key: string; path: string }[]>([]);
   const [data, setData] = useState<CountryData[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountId, setAccountId] = useState("");
@@ -47,6 +52,7 @@ export default function MapPage() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<CountryData | null>(null);
   const [isDark, setIsDark] = useState(false);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     const check = () => setIsDark(document.documentElement.classList.contains("dark"));
@@ -54,6 +60,23 @@ export default function MapPage() {
     const obs = new MutationObserver(check);
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
     return () => obs.disconnect();
+  }, []);
+
+  // Load topojson once
+  useEffect(() => {
+    fetch(GEO_URL)
+      .then((r) => r.json())
+      .then((topo: Topology) => {
+        const proj = geoNaturalEarth1().scale(153).translate([W / 2, H / 2]);
+        const path = geoPath(proj);
+        const countries = feature(topo, topo.objects.countries as GeometryCollection);
+        const paths = (countries.features as any[]).map((f, i) => ({
+          id: f.id != null ? String(f.id).padStart(3, "0") : "",
+          key: f.id != null ? String(f.id).padStart(3, "0") : `geo-${i}`,
+          path: path(f) ?? "",
+        }));
+        setGeoData(paths);
+      });
   }, []);
 
   useEffect(() => {
@@ -71,22 +94,21 @@ export default function MapPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const countryMap = Object.fromEntries(data.map((d) => [d.country, d]));
   const numericToIso2 = Object.fromEntries(Object.entries(iso2ToNumeric).map(([k, v]) => [v, k]));
+  const countryMap = Object.fromEntries(data.map((d) => [d.country, d]));
   const maxExpenses = Math.max(...data.map((d) => d.expenses), 1);
 
   const totalExpenses = data.reduce((s, d) => s + d.expenses, 0);
   const totalIncome = data.reduce((s, d) => s + d.income, 0);
   const totalTxs = data.reduce((s, d) => s + d.txCount, 0);
-  const countriesVisited = data.length;
   const topCountries = [...data].sort((a, b) => b.expenses - a.expenses).slice(0, 8);
 
-  const emptyColor = isDark ? "#27272a" : "#e4e4e7";
   const borderColor = isDark ? "#3f3f46" : "#d4d4d8";
+  const gradientFrom = isDark ? "#27272a" : "#e4e4e7";
+  const gradientTo = isDark ? "rgb(239,68,68)" : "rgb(185,28,28)";
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-semibold">World Map</h1>
@@ -102,16 +124,16 @@ export default function MapPage() {
         </select>
       </div>
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Countries visited", value: String(countriesVisited), icon: "🌍" },
-          { label: "Transactions", value: String(totalTxs), icon: "📋" },
+          { label: "Countries visited", value: String(data.length) },
+          { label: "Transactions", value: String(totalTxs) },
           { label: "Total spent", value: fmt(totalExpenses), color: "text-red-500 dark:text-red-400" },
           { label: "Total received", value: fmt(totalIncome), color: "text-emerald-600 dark:text-emerald-400" },
-        ].map(({ label, value, color, icon }) => (
+        ].map(({ label, value, color }) => (
           <div key={label} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">{icon} {label}</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">{label}</p>
             <p className={`text-xl font-semibold mt-1 tabular-nums ${color ?? ""}`}>{value}</p>
           </div>
         ))}
@@ -119,62 +141,50 @@ export default function MapPage() {
 
       {/* Map + sidebar */}
       <div className="flex gap-4 flex-col lg:flex-row">
-        {/* Map card */}
+        {/* Map */}
         <div className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden relative">
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/20 rounded-xl">
-              <div className="rounded-lg bg-[var(--card)] border border-[var(--border)] px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400">
-                Loading…
-              </div>
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</p>
             </div>
           )}
 
-          <ComposableMap
-            projectionConfig={{ scale: 147, center: [10, 10] }}
-            width={800}
-            height={440}
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${W} ${H}`}
             style={{ width: "100%", height: "auto", display: "block" }}
           >
-            <Geographies geography={GEO_URL}>
-              {({ geographies }) =>
-                geographies.map((geo) => {
-                  const numId = String(geo.id).padStart(3, "0");
-                  const iso2 = numericToIso2[numId];
-                  const d = iso2 ? countryMap[iso2] : undefined;
-                  const isSelected = selected?.country === iso2;
-                  const isHovered = hovered === iso2;
+            {geoData.map(({ id, key, path }) => {
+              const iso2 = numericToIso2[id];
+              const d = iso2 ? countryMap[iso2] : undefined;
+              const isSelected = selected?.country === iso2;
+              const isHovered = hovered === iso2;
 
-                  let fill = emptyColor;
-                  if (isSelected) fill = "#f59e0b";
-                  else if (isHovered && d) fill = isDark ? "#facc15" : "#fbbf24";
-                  else if (d) fill = getColor(d.expenses, maxExpenses, isDark);
+              let fill = isDark ? "#27272a" : "#e4e4e7";
+              if (isSelected) fill = "#f59e0b";
+              else if (isHovered && d) fill = isDark ? "#facc15" : "#fbbf24";
+              else if (d) fill = getColor(d.expenses, maxExpenses, isDark);
 
-                  return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      fill={fill}
-                      stroke={borderColor}
-                      strokeWidth={0.4}
-                      style={{
-                        default: { outline: "none" },
-                        hover: { outline: "none", cursor: d ? "pointer" : "default" },
-                        pressed: { outline: "none" },
-                      }}
-                      onMouseEnter={() => iso2 && d && setHovered(iso2)}
-                      onMouseLeave={() => setHovered(null)}
-                      onClick={() => {
-                        if (!d) return;
-                        setSelected(selected?.country === iso2 ? null : d);
-                      }}
-                    />
-                  );
-                })
-              }
-            </Geographies>
-          </ComposableMap>
+              return (
+                <path
+                  key={key}
+                  d={path}
+                  fill={fill}
+                  stroke={borderColor}
+                  strokeWidth={0.5}
+                  style={{ cursor: d ? "pointer" : "default", transition: "fill 0.15s" }}
+                  onMouseEnter={() => iso2 && d && setHovered(iso2)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => {
+                    if (!d) return;
+                    setSelected(selected?.country === iso2 ? null : d);
+                  }}
+                />
+              );
+            })}
+          </svg>
 
-          {/* Hovered country label */}
+          {/* Hover label */}
           {hovered && countryMap[hovered] && !selected && (
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
               <div className="rounded-lg bg-[var(--card)] border border-[var(--border)] shadow-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap">
@@ -184,23 +194,16 @@ export default function MapPage() {
           )}
 
           {/* Legend */}
-          <div className="absolute top-3 right-3 rounded-lg bg-[var(--card)]/90 border border-[var(--border)] px-3 py-2 backdrop-blur-sm">
+          <div className="absolute top-3 right-3 rounded-lg bg-[var(--card)]/90 border border-[var(--border)] px-3 py-2">
             <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-1 font-medium uppercase tracking-wide">Spending</p>
-            <div className="flex items-center gap-2">
-              <div className="w-20 h-2 rounded-full" style={{
-                background: isDark
-                  ? "linear-gradient(to right, #27272a, rgb(239,68,68))"
-                  : "linear-gradient(to right, #e4e4e7, rgb(185,28,28))"
-              }} />
-            </div>
+            <div className="w-20 h-2 rounded-full" style={{ background: `linear-gradient(to right, ${gradientFrom}, ${gradientTo})` }} />
             <div className="flex justify-between text-[10px] text-zinc-400 mt-0.5">
               <span>Low</span><span>High</span>
             </div>
           </div>
 
-          {/* Click hint */}
           {!loading && data.length > 0 && !selected && (
-            <p className="absolute bottom-3 right-3 text-[10px] text-zinc-400/70 dark:text-zinc-500/70">
+            <p className="absolute bottom-3 right-3 text-[10px] text-zinc-400/60 dark:text-zinc-500/60">
               Click a country for details
             </p>
           )}
@@ -208,7 +211,6 @@ export default function MapPage() {
 
         {/* Sidebar */}
         <div className="lg:w-72 space-y-3">
-          {/* Selected country detail */}
           {selected ? (
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
@@ -216,10 +218,7 @@ export default function MapPage() {
                   <p className="font-semibold">{countryByCode[selected.country] ?? selected.country}</p>
                   <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{selected.txCount} transaction{selected.txCount !== 1 ? "s" : ""}</p>
                 </div>
-                <button
-                  onClick={() => setSelected(null)}
-                  className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1"
-                >
+                <button onClick={() => setSelected(null)} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 p-1">
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -247,9 +246,7 @@ export default function MapPage() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1.5">Cities</p>
                     <div className="flex flex-wrap gap-1.5">
                       {selected.cities.map((city) => (
-                        <span key={city} className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-xs font-medium">
-                          {city}
-                        </span>
+                        <span key={city} className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-xs font-medium">{city}</span>
                       ))}
                     </div>
                   </div>
@@ -258,11 +255,10 @@ export default function MapPage() {
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-zinc-200 dark:border-zinc-700 px-4 py-6 text-center">
-              <p className="text-sm text-zinc-400 dark:text-zinc-500">Click a country on the map to see details</p>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">Click a country to see details</p>
             </div>
           )}
 
-          {/* Top countries list */}
           {topCountries.length > 0 && (
             <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] divide-y divide-[var(--border)]">
               <p className="px-4 py-2.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Top countries</p>
